@@ -14,13 +14,19 @@
       var prison_data = await d3.json("covid_prison_cases.json", d3.autoType);
       console.log(prison_data.length);
       console.log(prison_data);
+      console.log(typeof (prison_data))
 
 
       // prison_data = prison_data.filter((d) => { return (d['total_prisoner_case']) != ""; })
       // console.log(prison_data.length);
 
+      const formatMonthYear = d3.timeFormat('%b-%Y');
+
+
       prison_data.forEach((d, i) => {
         d["as_of_date"] = new Date(d["as_of_date"]);
+        d["month_year"] = formatMonthYear(d["as_of_date"]);
+
         // if (d['total_prisoner_case']) = "" ){
         //   d['total_prisoner_case']) = 0;
         // };
@@ -31,6 +37,10 @@
 
 
       console.log(prison_data);
+
+
+      var groupByMonth = d3.group(prison_data, d => d.month_year)
+      console.log(groupByMonth)
 
       // const groupBy = (array, key) => {
       //   return array.reduce((result, currentValue) => {
