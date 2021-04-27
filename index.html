@@ -48,6 +48,7 @@
 
 
       //totals
+      //https://observablehq.com/@d3/d3-group
       var summed = d3.rollups(prison_data, v => d3.sum(v, d => d.total_prisoner_cases), d => d.month_year, d => d.name)
 
       console.log(summed)
