@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <meta charset="UTF-8">
-<title>Page Title</title>
+<title>Project 2</title>
 <script src="https://d3js.org/d3.v6.min.js"></script>
 <script src="https://d3js.org/topojson.v3.min.js"></script>
 
@@ -9,39 +9,44 @@
   <h1> Project 2</h1>
   <script>
 
-    const requestData = async function() {
+    const requestData = async function () {
 
-      const prison_data = await d3.csv("covid_prison_cases.csv");
+      var prison_data = await d3.json("covid_prison_cases.json", d3.autoType);
       console.log(prison_data.length);
       console.log(prison_data);
 
 
-      prison_data = prison_data.filter((d) => { return (d['total_prisoner_case']) != "" ; })
-      console.log(prison_data.length);
+      // prison_data = prison_data.filter((d) => { return (d['total_prisoner_case']) != ""; })
+      // console.log(prison_data.length);
 
       prison_data.forEach((d, i) => {
-        d["as_of_date"] =  new Date(d["as_of_date"]);
+        d["as_of_date"] = new Date(d["as_of_date"]);
         // if (d['total_prisoner_case']) = "" ){
         //   d['total_prisoner_case']) = 0;
         // };
-        console.log(d["as_of_date"].getFullYear());
+        // console.log(d["as_of_date"].getFullYear());
       });
 
-      const groupBy = (array, key) => {
-        return array.reduce((result, currentValue) => {
-          (result[currentValue[key]] = result[currentValue[key]] || []).push(
-            currentValue
-          );
-          return result;
-        }, {});
-      };
-
-      var sorted_data = groupBy(prison_data, "name");
+      prison_data = prison_data.filter((d) => { return d['total_prisoner_cases'] != null; })
 
 
+      console.log(prison_data);
+
+      // const groupBy = (array, key) => {
+      //   return array.reduce((result, currentValue) => {
+      //     (result[currentValue[key]] = result[currentValue[key]] || []).push(
+      //       currentValue
+      //     );
+      //     return result;
+      //   }, {});
+      // };
+
+      // var sorted_data = groupBy(prison_data, "name");
 
 
-      console.log(sorted_data);
+
+
+      // console.log(sorted_data);
 
 
 
@@ -54,7 +59,7 @@
 
     requestData();
 
-    </script>
+  </script>
 
 
 </body>
