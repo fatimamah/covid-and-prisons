@@ -39,7 +39,7 @@
       console.log(prison_data);
 
 
-      var groupByMonth = d3.group(prison_data, d => d.month_year)
+      var groupByMonth = d3.group(prison_data, d => d.month_year, d => d.name)
       console.log(groupByMonth)
 
       // const groupBy = (array, key) => {
