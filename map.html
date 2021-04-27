@@ -3,10 +3,28 @@
 <title>INFO 3300: Project 2 Map</title>
 <script src="https://d3js.org/d3.v6.min.js"></script>
 <script src="https://d3js.org/topojson.v1.min.js"></script>
+<style>
+    .outline {
+        stroke: black;
+        stroke-width: 1px;
+        fill: none;
+    }
+
+    /* .graticule {
+        fill: none;
+        stroke: grey;
+        stroke-width: 1px;
+    } */
+
+    .state {
+        fill: lightgrey;
+    }
+</style>
 
 <body>
 
     <svg id="usmap" height="600" width="900"></svg>
+
 
     <script>
 

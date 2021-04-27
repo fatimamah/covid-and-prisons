@@ -12,7 +12,7 @@
     const requestData = async function () {
 
       var prison_data = await d3.json("covid_prison_cases.json", d3.autoType);
-      var prison_pops =  await d3.json("prison_populations.json", d3.autoType);
+      var prison_pops = await d3.json("prison_populations.json", d3.autoType);
 
       month_pop = {};
 
@@ -38,11 +38,11 @@
       prison_data.forEach((d, i) => {
         d["as_of_date"] = new Date(d["as_of_date"]);
         d["month_year"] = formatMonthYear(d["as_of_date"]);
-        d["year"] = d["as_of_date"].getFullYear();
+
 
       });
 
-      prison_data = prison_data.filter((d) => { return d['total_prisoner_cases'] != null && d["as_of_date"].getFullYear()!=2021 ; })
+      prison_data = prison_data.filter((d) => { return d['total_prisoner_cases'] != null && d["as_of_date"].getFullYear() != 2021; })
 
 
       console.log(prison_data);
@@ -53,6 +53,7 @@
 
 
       //totals
+      //https://observablehq.com/@d3/d3-group
       var summed = d3.rollups(prison_data, v => d3.sum(v, d => d.total_prisoner_cases), d => d.month_year, d => d.name)
 
       console.log(summed)
@@ -81,6 +82,33 @@
         //console.log(d[1]);
 
       });
+
+
+      var stateIDs = await d3.tsv("./us-state-names.tsv");
+
+      //filter states not in our stateData from stateIDs
+      stateIDs = stateIDs.filter((d) => {
+        return d["name"] != "District of Columbia" && d["name"] != "America Samoa" && d["name"] != "Federated States of Micronesia" && d["name"] != "Palau" && d["name"] != "Guam" && d["name"] != "Marshall Islands" && d["name"] != "Northern Mariana Islands" && d["name"] != "Puerto Rico" && d["name"] != "U.S. Minor Outlying Islands" && d["name"] != "Virgin Islands of the United States";
+      })
+
+      let stateRates = {};
+      let idToState = {}
+
+      //set up stateCounts to take strings and for strings to be equal to state names and to match state ids with names in idToState
+      stateIDs.forEach(row => {
+        stateRates[row.name] = 0;
+        idToState[row.id] = row.name;
+      });
+
+      summed.forEach((d, i, row) => {
+        // let monthRow = d;
+        d.forEach((d, i) => {
+          // stateRates[state] = i;
+          console.log(d)
+        });
+        // console.log(row)
+      });
+      // console.log(stateRates)
 
 
 
