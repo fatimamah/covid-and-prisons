@@ -38,9 +38,16 @@
 
       console.log(prison_data);
 
+      // not totalled
+      // var groupByMonth = d3.groups(prison_data, d => d.month_year, d => d.name)
+      // console.log(groupByMonth)
 
-      var groupByMonth = d3.group(prison_data, d => d.month_year, d => d.name)
-      console.log(groupByMonth)
+
+      //totals
+      var summed = d3.rollups(prison_data, v => d3.sum(v, d => d.total_prisoner_cases), d => d.month_year, d => d.name)
+
+      console.log(summed)
+
 
       // const groupBy = (array, key) => {
       //   return array.reduce((result, currentValue) => {
