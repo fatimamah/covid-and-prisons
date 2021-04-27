@@ -14,9 +14,14 @@
       var prison_data = await d3.json("covid_prison_cases.json", d3.autoType);
       var prison_pops =  await d3.json("prison_populations.json", d3.autoType);
 
+      month_pop = {};
+
       prison_pops.forEach((d, i) => {
-        //console.log(d.march_pop);
+        //month_pop["state"] = d.name
+        console.log(d);
       });
+
+      //console.log(month_pop);
 
 
       // console.log(prison_data.length);
@@ -52,8 +57,28 @@
 
       console.log(summed)
 
+
+
+
+
+
       summed.forEach((d, i) => {
-        console.log(d);
+         console.log(d[0]);
+
+
+
+         d[1].forEach((item, i) => {
+          console.log(item[0],item[1])
+         });
+
+         //console.log(d[1][0]);
+
+
+
+
+
+
+        //console.log(d[1]);
 
       });
 
