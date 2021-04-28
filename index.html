@@ -28,6 +28,8 @@
       prison_pops = prison_pops.filter((d) => { return  d["name"] != "Federal"; })
       prison_data = prison_data.filter((d) => { return d['total_prisoner_cases'] != null && d["as_of_date"].getFullYear() != 2021 && d["name"] != "Federal";; })
 
+
+
       //https://stackoverflow.com/questions/1129216/sort-array-of-objects-by-string-property-value
       //sorting alphabetically
       function compare( a, b ) {
@@ -50,6 +52,67 @@
 
       console.log(summed1);
 
+      //var summed2 = d3.groups(prison_data, d => d.name, d => d.month_year)
+      var summed2 = d3.groups(prison_data, d => d.name, d => d.month_year, d => d.total_prisoner_cases)
+console.log(summed2);
+      //console.log(summed2[state][1][0][1][week][0])
+
+
+
+var prison;
+
+  summed2.forEach((d, i) => {
+    var prison = prison_pops[i]
+
+    var stop = d[1];
+    console.log(stop);
+    var count = [];
+
+    stop.forEach((month, item) => {
+      //console.log(month[1])
+
+      var week_list  = month[1];
+      //console.log(week_list.length);
+
+      var len = week_list.length;
+
+
+      week_list.forEach((week, index) => {
+        if (month[0] == "Dec-2020") {
+          var prop = (week[0]/prison.dec_pop);
+          count.push(prop)
+          //properties[month[0]] = month[1]/prison.march_pop
+        }
+
+
+
+
+
+
+
+
+
+      //  console.log(d3.mean(count));
+      });
+
+      var mean = d3.mean(count);
+
+
+
+
+
+
+
+  
+        });
+        console.log(mean);
+
+        //console.log(d3.mean(count));
+
+
+    });
+
+
 
 
   var pop = [];
@@ -68,6 +131,7 @@
 
         var month_list = d[1];
         month_list.forEach((month, item) => {
+          //console.log(month[1])
 
         //march 2020
            if (month[0] == "Mar-2020") {
