@@ -24,6 +24,9 @@
 <body>
 
     <svg id="usmap" height="600" width="900"></svg>
+    <input type="range" id="slider" value="March 2020" name="slider" min="March 2020" max="Decmeber 2020" step="1">
+    </input>
+    </div>
 
 
     <script>
@@ -42,6 +45,9 @@
 
             var states = topojson.feature(us, us.objects.states);
             var statesMesh = topojson.mesh(us, us.objects.states);
+
+            // console.log(us)
+            // console.log(states)
 
             var projection = d3.geoAlbersUsa().fitSize([mapWidth, mapHeight], states);
             var path = d3.geoPath().projection(projection);
