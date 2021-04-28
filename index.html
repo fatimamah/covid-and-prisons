@@ -29,162 +29,147 @@
       prison_data = prison_data.filter((d) => { return d['total_prisoner_cases'] != null && d["as_of_date"].getFullYear() != 2021 && d["name"] != "Federal";; })
 
 
+    var summed2 = d3.groups(prison_data, d => d.name, d => d.month_year, d => d.total_prisoner_cases)
+    console.log(summed2);
 
-      //https://stackoverflow.com/questions/1129216/sort-array-of-objects-by-string-property-value
-      //sorting alphabetically
-      function compare( a, b ) {
-          if ( a.name < b.name ){
-            return -1;
-          }
-          if ( a.name > b.name ){
-            return 1;
-          }
-          return 0;
-        }
-     var temp = prison_data.sort( compare );
+    var pop = [];
+    var prison;
+    var state;
 
-
-      //totals
-      //https://observablehq.com/@d3/d3-group
-      var summed1 = d3.rollups(temp, v => d3.sum(v, d => d.total_prisoner_cases),  d => d.name, d => d.month_year)
-                      //.sort(function(a,b) {return d3.ascending(a.name,b.month_year);});
+    summed2.forEach((d, i) => {
+      var state = d[0], prison = prison_pops[i];
+      var outer_dic = {}, properties = {};
+      outer_dic["id"] = i, properties["id"] = i;
+      properties["state"] = state;
 
 
-      console.log(summed1);
+      var month_list = d[1];
+      //console.log(month_list);
 
-      //var summed2 = d3.groups(prison_data, d => d.name, d => d.month_year)
-      var summed2 = d3.groups(prison_data, d => d.name, d => d.month_year, d => d.total_prisoner_cases)
-console.log(summed2);
-      //console.log(summed2[state][1][0][1][week][0])
+      var dec_count = [], nov_count = [], oct_count = [], sep_count = [], aug_count = [], jul_count = [], jun_count = [], may_count = [], apr_count = [], mar_count = [];
 
+      month_list.forEach((month, item) => {
+        var week_list  = month[1];
 
+        week_list.forEach((week, index) => {
+          if (month[0] == "Dec-2020") {
+            var prop = (week[0]/prison.dec_pop);
+            dec_count.push(prop)  }
+          if (month[0] == "Nov-2020") {
+              var prop = (week[0]/prison.nov_pop);
+              nov_count.push(prop)  }
+           if (month[0] == "Oct-2020") {
+               var prop = (week[0]/prison.oct_pop);
+               oct_count.push(prop)  }
 
-var prison;
+            if (month[0] == "Sep-2020") {
+                var prop = (week[0]/prison.sept_pop);
+                sep_count.push(prop)  }
 
-  summed2.forEach((d, i) => {
-    var prison = prison_pops[i]
+            if (month[0] == "Aug-2020") {
+                var prop = (week[0]/prison.aug_pop);
+                aug_count.push(prop)  }
 
-    var stop = d[1];
-    console.log(stop);
-    var count = [];
+            if (month[0] == "Jul-2020") {
+                var prop = (week[0]/prison.july_pop);
+                jul_count.push(prop)  }
 
-    stop.forEach((month, item) => {
-      //console.log(month[1])
+            if (month[0] == "Jun-2020") {
+                var prop = (week[0]/prison.june_pop);
+                jun_count.push(prop)  }
 
-      var week_list  = month[1];
-      //console.log(week_list.length);
+            if (month[0] == "May-2020") {
+                var prop = (week[0]/prison.may_pop);
+                may_count.push(prop)  }
+            if (month[0] == "Apr-2020") {
+                var prop = (week[0]/prison.april_pop);
+                apr_count.push(prop)  }
 
-      var len = week_list.length;
-
-
-      week_list.forEach((week, index) => {
-        if (month[0] == "Dec-2020") {
-          var prop = (week[0]/prison.dec_pop);
-          count.push(prop)
-          //properties[month[0]] = month[1]/prison.march_pop
-        }
-
-
-
-
-
-
-
-
-
-      //  console.log(d3.mean(count));
-      });
-
-      var mean = d3.mean(count);
-
+            if (month[0] == "Mar-2020") {
+                var prop = (week[0]/prison.march_pop);
+                mar_count.push(prop)  }
 
 
-
-
-
-
-  
-        });
-        console.log(mean);
-
-        //console.log(d3.mean(count));
-
-
-    });
-
-
-
-
-  var pop = [];
-  var prison;
-  var state;
-
-      summed1.forEach((d, i) => {
-        var state = d[0];
-        var outer_dic = {};
-        var properties = {};
-        outer_dic["id"] = i;
-        properties["state"] = state;
-        properties["id"] = i;
-
-        var prison = prison_pops[i];
-
-        var month_list = d[1];
-        month_list.forEach((month, item) => {
-          //console.log(month[1])
-
-        //march 2020
-           if (month[0] == "Mar-2020") {
-              properties[month[0]] = month[1]/prison.march_pop }
-           else if (month[0] == "Apr-2020") {
-               properties[month[0]] = month[1]/prison.april_pop }
-           else if (month[0] == "May-2020") {
-                properties[month[0]] = month[1]/prison.may_pop }
-           else if (month[0] == "Jun-2020") {
-                properties[month[0]] = month[1]/prison.june_pop }
-           else if (month[0] == "Jul-2020") {
-                properties[month[0]] = month[1]/prison.july_pop }
-           else if (month[0] == "Aug-2020") {
-                properties[month[0]] = month[1]/prison.aug_pop }
-           else if (month[0] == "Sep-2020") {
-               properties[month[0]] = month[1]/prison.sept_pop }
-           else if (month[0] == "Oct-2020") {
-               properties[month[0]] = month[1]/prison.oct_pop }
-           else if (month[0] == "Nov-2020") {
-               properties[month[0]] = month[1]/prison.nov_pop }
-           else if (month[0] == "Dec-2020") {
-             //console.log(state,month[1]);
-              properties[month[0]] = month[1]/prison.dec_pop }
-           else{
-              console.log("missed something") }
         });
 
-        outer_dic["properties"] = properties;
-        pop.push(outer_dic);
+          });
+
+          var dec_mean =  d3.mean(dec_count), nov_mean =  d3.mean(nov_count), oct_mean =  d3.mean(oct_count),
+              sep_mean = d3.mean(sep_count), aug_mean= d3.mean(aug_count), jul_mean = d3.mean(jul_count),
+              jun_mean = d3.mean(jun_count), may_mean = d3.mean(may_count), apr_mean = d3.mean(apr_count),
+              mar_mean = d3.mean(mar_count);
+
+
+
+
+          for (k = 0; k < month_list.length; k++) {
+
+              if (month_list[k][0] == "Dec-2020") {
+                properties[month_list[k][0]] = dec_mean *100;
+              }
+              else if (month_list[k][0] == "Nov-2020") {
+                properties[month_list[k][0]] = nov_mean*100;
+              }
+              else if (month_list[k][0] == "Oct-2020") {
+                properties[month_list[k][0]] = oct_mean*100;
+              }
+              else if (month_list[k][0] == "Sep-2020") {
+                properties[month_list[k][0]] = sep_mean*100;
+              }
+              else if (month_list[k][0] == "Aug-2020") {
+                properties[month_list[k][0]] = aug_mean*100;
+              }
+              else if (month_list[k][0] == "Jul-2020") {
+                properties[month_list[k][0]] = jul_mean*100;
+              }
+              else if (month_list[k][0] == "Jun-2020") {
+                properties[month_list[k][0]] = jun_mean*100;
+              }
+              else if (month_list[k][0] == "May-2020") {
+                properties[month_list[k][0]] = may_mean*100;
+              }
+              else if (month_list[k][0] == "Apr-2020") {
+                properties[month_list[k][0]] = apr_mean*100;
+              }
+              else if (month_list[k][0] == "Mar-2020") {
+                properties[month_list[k][0]] = mar_mean*100;
+              } else{
+                console.log("seomthing bad");
+              }
+
+
+
+
+            };
+
+
+            outer_dic["properties"] = properties;
+            pop.push(outer_dic);
+
+
 
       });
-      //console.log(pop[10].properties);
-      //console.log(prison_pops[10]);
       console.log(pop);
 
 
-      var stateIDs = await d3.tsv("./us-state-names.tsv");
 
-      //filter states not in our stateData from stateIDs
-      stateIDs = stateIDs.filter((d) => {
-        return d["name"] != "District of Columbia" && d["name"] != "America Samoa" && d["name"] != "Federated States of Micronesia" && d["name"] != "Palau" && d["name"] != "Guam" && d["name"] != "Marshall Islands" && d["name"] != "Northern Mariana Islands" && d["name"] != "Puerto Rico" && d["name"] != "U.S. Minor Outlying Islands" && d["name"] != "Virgin Islands of the United States";
-      })
-
-      let stateRates = {};
-      let idToState = {}
-
-      //set up stateCounts to take strings and for strings to be equal to state names and to match state ids with names in idToState
-      stateIDs.forEach((row, i ) => {
-        //console.log(row.id);
-        //console.log(pop[row.id].properties);
-
-        idToState[row.id] = row.name;
-      });
+  //     var stateIDs = await d3.tsv("./us-state-names.tsv");
+  //
+  //     //filter states not in our stateData from stateIDs
+  //     stateIDs = stateIDs.filter((d) => {
+  //       return d["name"] != "District of Columbia" && d["name"] != "America Samoa" && d["name"] != "Federated States of Micronesia" && d["name"] != "Palau" && d["name"] != "Guam" && d["name"] != "Marshall Islands" && d["name"] != "Northern Mariana Islands" && d["name"] != "Puerto Rico" && d["name"] != "U.S. Minor Outlying Islands" && d["name"] != "Virgin Islands of the United States";
+  //     })
+  //
+  //     let stateRates = {};
+  //     let idToState = {}
+  //
+  //     //set up stateCounts to take strings and for strings to be equal to state names and to match state ids with names in idToState
+  //     stateIDs.forEach((row, i ) => {
+  //       //console.log(row.id);
+  //       //console.log(pop[row.id].properties);
+  //
+  //       idToState[row.id] = row.name;
+  //     });
 
 
 
