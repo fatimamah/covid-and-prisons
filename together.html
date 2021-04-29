@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<meta charset="UTF-8">
+<title>Project 2</title>
+<script src="https://d3js.org/d3.v6.min.js"></script>
+<script src="https://d3js.org/topojson.v3.min.js"></script>
+<style>
+    .outline {
+        stroke: black;
+        stroke-width: 1px;
+        fill: none;
+    }
+
+    /* .graticule {
+        fill: none;
+        stroke: grey;
+        stroke-width: 1px;
+    } */
+
+    .state {
+        fill: lightgrey;
+    }
+
+    .state2 {
+        fill: lightgrey;
+    }
+</style>
+
+<body>
+    <h1> Project 2</h1>
+    <input type="range" id="slider" value="0" name="slider" min=0 max=9 step="1" />
+
+    <span id="range">March 2020</span>
+    <div>
+        <svg id="prisonmap" height="400" width="600"></svg>
+        <svg id="genmap" height="400" width="600"></svg>
+
+    </div>
+
+
+
+    <script>
+        onload = function () {
+            var $ = function (id) { return document.getElementById(id); };
+            $('slider').oninput = function () {
+                $('range').innerHTML = this.value;
+                //console.log($('range').innerHTML)
+
+            };
+            $('slider').oninput(mar);
+        };
+    </script>
+    <script>
+        var value;
+        var value2;
+        const svg = d3.select("#prisonmap");
+        const width = svg.attr("width");
+        const height = svg.attr("height");
+        const margin = { top: 20, right: 20, bottom: 20, left: 20 };
+        const mapWidth = width - margin.left - margin.right;
+        const mapHeight = height - margin.top - margin.bottom;
+
+
+        var color = d3.scaleLinear().domain([0, 1]).range(["#add8e6", "#00264D"]);
+
+
+        const pri_map = svg.append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        //prison map
+        const svg2 = d3.select("#genmap");
+        const width2 = svg2.attr("width");
+        const height2 = svg2.attr("height");
+        const margin2 = { top: 20, right: 20, bottom: 20, left: 20 };
+        const mapWidth2 = width2 - margin2.left - margin2.right;
+        const mapHeight2 = height2 - margin2.top - margin2.bottom;
+
+        const gen_map = svg2.append("g")
+            .attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
+
+        const requestData = async function () {
+
+
+
+            const us = await d3.json("us1.json");
+
+            var states = topojson.feature(us, us.objects.states);
+            var statesMesh = topojson.mesh(us, us.objects.states);
+
+            var projection = d3.geoAlbersUsa().fitSize([mapWidth, mapHeight], states);
+            var path = d3.geoPath().projection(projection);
+
+            var graticule = d3.geoGraticule10();
+
+
+            pri_map.selectAll("path.state").data(states.features)
+                .join("path")
+                .attr("class", "state")
+                .attr("stroke-width", "1px")
+                .attr("stroke", "black")
+                .attr("note", d => d.id)
+                .attr("d", path);
+
+            pri_map.append("path").datum(statesMesh)
+                .attr("class", "outline")
+                .attr("d", path);
+
+            var projection2 = d3.geoAlbersUsa().fitSize([mapWidth2, mapHeight2], states);
+            var path2 = d3.geoPath().projection(projection2);
+
+            gen_map.selectAll("path.state").data(states.features)
+                .join("path")
+                .attr("class", "state2")
+                .attr("stroke-width", "1px")
+                .attr("stroke", "black")
+                .attr("note", d => d.id)
+                .attr("d", path2);
+
+            gen_map.append("path").datum(statesMesh)
+                .attr("class", "outline")
+                .attr("d", path2);
+
+            var prison_data = await d3.json("covid_prison_cases.json", d3.autoType);
+            var prison_pops = await d3.json("prison2.json", d3.autoType);
+
+
+            const formatMonthYear = d3.timeFormat('%b-%Y');
+
+
+            prison_data.forEach((d, i) => {
+                d["as_of_date"] = new Date(d["as_of_date"]);
+                d["month_year"] = formatMonthYear(d["as_of_date"]);
+
+
+            });
+
+            prison_pops = prison_pops.filter((d) => { return d["name"] != "Federal"; })
+            prison_data = prison_data.filter((d) => { return d['total_prisoner_cases'] != null && d["as_of_date"].getFullYear() != 2021 && d["name"] != "Federal";; })
+
+
+            var summed2 = d3.groups(prison_data, d => d.name, d => d.month_year, d => d.total_prisoner_cases)
+            console.log(summed2);
+
+            var pop = [];
+            var prison;
+            var state;
+
+            var tryy = {}
+            summed2.forEach((d, i) => {
+                var state = d[0], prison = prison_pops[i];
+                var outer_dic = {}, properties = {};
+                outer_dic["id"] = i, properties["id"] = i;
+                properties["state"] = state;
+
+
+                var month_list = d[1];
+                //console.log(month_list);
+
+                var dec_count = [], nov_count = [], oct_count = [], sep_count = [], aug_count = [], jul_count = [], jun_count = [], may_count = [], apr_count = [], mar_count = [];
+
+                var countsss = [];
+                month_list.forEach((month, item) => {
+                    var week_list = month[1];
+
+                    week_list.forEach((week, index) => {
+                        if (month[0] == "Dec-2020") {
+                            //console.log(week[0], prison.dec_pop);
+                            var prop = (week[0] / prison.dec_pop);
+                            var temp = ((week[0] * 1.2) / (prison.dec_pop + week[0]))
+                            countsss.push(temp);
+                            dec_count.push(prop)
+                        }
+                        else if (month[0] == "Nov-2020") {
+                            var prop = (week[0] / prison.nov_pop);
+                            nov_count.push(prop)
+                        }
+                        else if (month[0] == "Oct-2020") {
+                            var prop = (week[0] / prison.oct_pop);
+                            oct_count.push(prop)
+                        }
+                        else if (month[0] == "Sep-2020") {
+                            var prop = (week[0] / prison.sept_pop);
+                            sep_count.push(prop)
+                        }
+                        else if (month[0] == "Aug-2020") {
+                            var prop = (week[0] / prison.aug_pop);
+                            aug_count.push(prop)
+                        }
+                        else if (month[0] == "Jul-2020") {
+                            var prop = (week[0] / prison.july_pop);
+                            jul_count.push(prop)
+                        }
+                        else if (month[0] == "Jun-2020") {
+                            var prop = (week[0] / prison.june_pop);
+                            jun_count.push(prop)
+                        }
+                        else if (month[0] == "May-2020") {
+                            var prop = (week[0] / prison.may_pop);
+                            may_count.push(prop)
+                        }
+                        else if (month[0] == "Apr-2020") {
+                            var prop = (week[0] / prison.april_pop);
+                            apr_count.push(prop)
+                        }
+                        else if (month[0] == "Mar-2020") {
+                            var prop = (week[0] / prison.march_pop);
+                            mar_count.push(prop)
+                        }
+                        else {
+                            console.log("wow");
+                        }
+
+
+                    });
+
+                });
+
+                var dec_mean = d3.mean(dec_count), nov_mean = d3.mean(nov_count), oct_mean = d3.mean(oct_count),
+                    sep_mean = d3.mean(sep_count), aug_mean = d3.mean(aug_count), jul_mean = d3.mean(jul_count),
+                    jun_mean = d3.mean(jun_count), may_mean = d3.mean(may_count), apr_mean = d3.mean(apr_count),
+                    mar_mean = d3.mean(mar_count);
+
+
+                //console.log(d3.mean(countsss));
+
+
+
+
+                for (k = 0; k < month_list.length; k++) {
+
+                    if (month_list[k][0] == "Dec-2020") {
+                        properties["dec"] = dec_mean;
+
+                    }
+                    else if (month_list[k][0] == "Nov-2020") {
+                        properties["nov"] = nov_mean;
+                    }
+                    else if (month_list[k][0] == "Oct-2020") {
+                        properties["oct"] = oct_mean;
+                    }
+                    else if (month_list[k][0] == "Sep-2020") {
+                        properties["sep"] = sep_mean;
+                    }
+                    else if (month_list[k][0] == "Aug-2020") {
+                        properties["aug"] = aug_mean;
+                    }
+                    else if (month_list[k][0] == "Jul-2020") {
+                        properties["jul"] = jul_mean;
+                    }
+                    else if (month_list[k][0] == "Jun-2020") {
+                        properties["jun"] = jun_mean;
+                    }
+                    else if (month_list[k][0] == "May-2020") {
+                        properties["may"] = may_mean;
+                    }
+                    else if (month_list[k][0] == "Apr-2020") {
+                        properties["apr"] = apr_mean;
+                    }
+                    else if (month_list[k][0] == "Mar-2020") {
+                        properties["mar"] = mar_mean;
+                    } else {
+                        console.log("seomthing bad");
+                    }
+
+
+
+                };
+
+
+                outer_dic["properties"] = properties;
+                pop.push(outer_dic);
+                tryy[state] = outer_dic;
+
+
+
+            });
+
+            console.log(tryy)
+
+
+            //gen data
+            var gen_data = await d3.json("general_covid.json", d3.autoType);
+
+            console.log(gen_data)
+
+            const formatMonth = d3.timeFormat('%b');
+
+
+            gen_data.forEach((d, i) => {
+                d["date"] = new Date(d["date"]);
+                d["month_year"] = formatMonth(d["date"]);
+                d["month_year"] = d["month_year"].toLowerCase();
+
+
+            });
+
+            console.log(gen_data)
+
+            gen_data = gen_data.filter((d) => { return d['cases_avg_per_100k'] != null && d["date"].getFullYear() != 2021 && d['month_year'] != "jan" && d['month_year'] != "feb" && d['state'] != "District of Columbia" && d['state'] != "Northern Mariana Islands" && d['state'] != "Virgin Islands" && d['state'] != "Guam" && d['state'] != "Puerto Rico";; })
+
+            console.log(gen_data)
+
+            // var grouped = d3.groups(gen_data, d => d.state, d => d.month_year, d => d.cases_avg_per_100k)
+            // console.log(grouped);
+
+            var gen_grouped = d3.rollups(gen_data, v => d3.mean(v, d => d3.mean(v, d => ((d.cases_avg_per_100k / 10000) * 100))), d => d.state, d => d.month_year)
+
+            console.log(gen_grouped);
+
+            // var d = summed.reduce((obj, item) => ({ ...obj, [item[0].substr(0, 55)]: item[1].reduce((obj, item) => ({ ...obj, [item[0].substr(0, 9)]: item[1] }), {}) }), {});
+
+            // console.log(d);
+
+            // var gen_state;
+            // var pop = [];
+
+            var gen_rates = {}
+
+            gen_grouped.forEach((d, i) => {
+                var state = d[0];
+                var outer_dic = {}, properties = {};
+                outer_dic["id"] = i, properties["id"] = i;
+                properties["state"] = state;
+
+                var month_list = d[1];
+
+                month_list.forEach((month, item) => {
+                    var rate_list = month[1];
+
+                    if (month[0] == "dec") {
+                        properties["dec"] = rate_list;
+                    }
+                    else if (month[0] == "nov") {
+                        properties["nov"] = rate_list;
+                    }
+                    else if (month[0] == "oct") {
+                        properties["oct"] = rate_list;
+                    }
+                    else if (month[0] == "sep") {
+                        properties["sep"] = rate_list;
+                    }
+                    else if (month[0] == "aug") {
+                        properties["aug"] = rate_list;
+                    }
+                    else if (month[0] == "jul") {
+                        properties["jul"] = rate_list;
+                    }
+                    else if (month[0] == "jun") {
+                        properties["jun"] = rate_list;
+                    }
+                    else if (month[0] == "may") {
+                        properties["may"] = rate_list;
+                    }
+                    else if (month[0] == "apr") {
+                        properties["apr"] = rate_list;
+                    }
+                    else if (month[0] == "mar") {
+                        properties["mar"] = rate_list;
+                    }
+                    else {
+                        console.log("bad thing");
+                    }
+                })
+
+
+                outer_dic["properties"] = properties;
+                // pop.push(outer_dic);
+                gen_rates[state] = outer_dic;
+            })
+            console.log(gen_rates)
+
+            var stateIDs = await d3.tsv("./us-state-names.tsv");
+
+            stateIDs = stateIDs.filter((d) => {
+                return d["name"] != "District of Columbia" && d["name"] != "America Samoa" && d["name"] != "Federated States of Micronesia" && d["name"] != "Palau" && d["name"] != "Guam" && d["name"] != "Marshall Islands" && d["name"] != "Northern Mariana Islands" && d["name"] != "Puerto Rico" && d["name"] != "U.S. Minor Outlying Islands" && d["name"] != "Virgin Islands of the United States";
+            })
+
+            let idToState = {}
+
+            stateIDs.forEach((row, i) => {
+                idToState[row.id] = row.name;
+            });
+
+            // console.log(tryy[idToState[56]]);
+
+            function filler(a) {
+                if (idToState[a]) {
+                    return color(tryy[idToState[a]].properties.nov)
+                }
+            }
+
+            d3.selectAll("input").on("change", function change() {
+                value = this.value;
+                //console.log(value);
+
+
+
+                pri_map.selectAll(".state")
+                    .style("fill", function (d) {
+                        console.log(d.id)
+                        switch (value) {
+                            case "0":
+
+                                if (idToState[d.id]) {
+                                    return color(tryy[idToState[d.id]].properties.mar);
+                                    break;
+                                } else { break; };
+                            case "1":
+                                if (idToState[d.id]) {
+                                    return color(tryy[idToState[d.id]].properties.apr);
+                                    break;
+                                } else { break; };
+                            case "2":
+                                if (idToState[d.id]) {
+                                    return color(tryy[idToState[d.id]].properties.may);
+                                    break;
+                                } else { break; };
+                            case "3":
+                                if (idToState[d.id]) {
+                                    return color(tryy[idToState[d.id]].properties.jun);
+                                    break;
+                                } else { break; };
+                            case "4":
+                                if (idToState[d.id]) {
+                                    return color(tryy[idToState[d.id]].properties.jul);
+                                    break;
+                                } else { break; };
+                            case "5":
+                                if (idToState[d.id]) {
+                                    return color(tryy[idToState[d.id]].properties.aug);
+                                    break;
+                                } else { break; };
+                            case "6":
+                                if (idToState[d.id]) {
+                                    return color(tryy[idToState[d.id]].properties.sep);
+                                    break;
+                                } else { break; };
+                            case "7":
+                                if (idToState[d.id]) {
+                                    return color(tryy[idToState[d.id]].properties.oct);
+                                    break;
+                                } else { break; };
+                            case "8":
+                                if (idToState[d.id]) {
+                                    return color(tryy[idToState[d.id]].properties.nov);
+                                    break;
+                                } else { break; };
+                            case "9":
+                                if (idToState[d.id]) {
+                                    return color(tryy[idToState[d.id]].properties.dec);
+                                    break;
+                                } else { break; };
+
+
+                            //return filler(g.id)
+
+                        }
+                    })
+                value2 = this.value;
+                gen_map.selectAll(".state2")
+                    .style("fill", function (d) {
+                        // console.log(d.id)
+                        switch (value2) {
+                            case "0":
+
+                                if (idToState[d.id]) {
+                                    return color(gen_rates[idToState[d.id]].properties.mar);
+                                    break;
+                                } else { break; };
+                            case "1":
+                                if (idToState[d.id]) {
+                                    return color(gen_rates[idToState[d.id]].properties.apr);
+                                    break;
+                                } else { break; };
+                            case "2":
+                                if (idToState[d.id]) {
+                                    return color(gen_rates[idToState[d.id]].properties.may);
+                                    break;
+                                } else { break; };
+                            case "3":
+                                if (idToState[d.id]) {
+                                    return color(gen_rates[idToState[d.id]].properties.jun);
+                                    break;
+                                } else { break; };
+                            case "4":
+                                if (idToState[d.id]) {
+                                    return color(gen_rates[idToState[d.id]].properties.jul);
+                                    break;
+                                } else { break; };
+                            case "5":
+                                if (idToState[d.id]) {
+                                    return color(gen_rates[idToState[d.id]].properties.aug);
+                                    break;
+                                } else { break; };
+                            case "6":
+                                if (idToState[d.id]) {
+                                    return color(gen_rates[idToState[d.id]].properties.sep);
+                                    break;
+                                } else { break; };
+                            case "7":
+                                if (idToState[d.id]) {
+                                    return color(gen_rates[idToState[d.id]].properties.oct);
+                                    break;
+                                } else { break; };
+                            case "8":
+                                if (idToState[d.id]) {
+                                    return color(gen_rates[idToState[d.id]].properties.nov);
+                                    break;
+                                } else { break; };
+                            case "9":
+                                if (idToState[d.id]) {
+                                    return color(gen_rates[idToState[d.id]].properties.dec);
+                                    break;
+                                } else { break; };
+                        }
+                    });
+            })
+
+
+
+
+
+
+
+        }
+        requestData();
+    </script>
+
+</body>
+
+</html>
