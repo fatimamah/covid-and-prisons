@@ -7,9 +7,86 @@
 
 <body>
   <h1> Project 2</h1>
+
+  <svg id="usmap" height="600" width="900"></svg>
+
+
+
+
+
+
+
   <script>
+    const svg = d3.select("#usmap");
+    const width = svg.attr("width");
+    const height = svg.attr("height");
+    const margin = { top: 20, right: 20, bottom: 20, left: 20 };
+    const mapWidth = width - margin.left - margin.right;
+    const mapHeight = height - margin.top - margin.bottom;
+  //var width = 800, height = 400;
+
+  var value;
+
+  var color = d3.scaleLinear().domain([0, 0.05]).range(["#add8e6","black"]);
+
+  //console.log(color(0.2543));
+
+
+
+
+  const map = svg.append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
     const requestData = async function () {
+
+
+      const us = await d3.json("us1.json");
+      console.log(us);
+
+      var states = topojson.feature(us, us.objects.states);
+      var statesMesh = topojson.mesh(us, us.objects.states);
+      //states.features[0].properties["key"] = 1;
+      //console.log(states.features[0].properties);
+
+      //console.log(states);
+
+      //projection.scale(1).translate([0, 0]);
+
+      // svg.selectAll("path").data(states.features.filter(function(d) {
+      //   console.log(d.id);
+      //   return d.id;
+      // })).enter().append("path").attr("class", "state").attr("d", path).style("fill","black");
+
+
+   //var projection = d3.geoConicConformal().parallels([35 + (34 / 60), 90 + (46 / 60)]).rotate([98 + 00 / 60, -35 + 00 / 60]).translate(mapWidth / 2, mapHeight / 2]);
+
+
+
+      var projection = d3.geoAlbersUsa().fitSize([mapWidth, mapHeight], states);
+      var path = d3.geoPath().projection(projection);
+
+      var graticule = d3.geoGraticule10();
+
+
+
+
+
+      svg.selectAll("path.state").data(states.features)
+          .join("path")
+          .attr("class", "state")
+          .attr("stroke-width", "1px")
+          .attr("stroke", "black")
+          .attr("note", d => d.id)
+          .attr("d", path);
+
+      svg.append("path").datum(state)
+          .attr("class", "outline")
+          .attr("d", path);
+
+
+
+
+
 
       var prison_data = await d3.json("covid_prison_cases.json", d3.autoType);
       var prison_pops = await d3.json("prison2.json", d3.autoType);
@@ -48,46 +125,47 @@
 
       var dec_count = [], nov_count = [], oct_count = [], sep_count = [], aug_count = [], jul_count = [], jun_count = [], may_count = [], apr_count = [], mar_count = [];
 
+      var countsss = [];
       month_list.forEach((month, item) => {
         var week_list  = month[1];
 
         week_list.forEach((week, index) => {
           if (month[0] == "Dec-2020") {
+            //console.log(week[0], prison.dec_pop);
             var prop = (week[0]/prison.dec_pop);
+            var temp = ((week[0]*1.2)/ (prison.dec_pop + week[0]))
+            countsss.push(temp);
             dec_count.push(prop)  }
-          if (month[0] == "Nov-2020") {
+          else if (month[0] == "Nov-2020") {
               var prop = (week[0]/prison.nov_pop);
               nov_count.push(prop)  }
-           if (month[0] == "Oct-2020") {
-               var prop = (week[0]/prison.oct_pop);
-               oct_count.push(prop)  }
-
-            if (month[0] == "Sep-2020") {
-                var prop = (week[0]/prison.sept_pop);
-                sep_count.push(prop)  }
-
-            if (month[0] == "Aug-2020") {
-                var prop = (week[0]/prison.aug_pop);
-                aug_count.push(prop)  }
-
-            if (month[0] == "Jul-2020") {
-                var prop = (week[0]/prison.july_pop);
-                jul_count.push(prop)  }
-
-            if (month[0] == "Jun-2020") {
-                var prop = (week[0]/prison.june_pop);
-                jun_count.push(prop)  }
-
-            if (month[0] == "May-2020") {
-                var prop = (week[0]/prison.may_pop);
-                may_count.push(prop)  }
-            if (month[0] == "Apr-2020") {
-                var prop = (week[0]/prison.april_pop);
-                apr_count.push(prop)  }
-
-            if (month[0] == "Mar-2020") {
-                var prop = (week[0]/prison.march_pop);
-                mar_count.push(prop)  }
+          else if (month[0] == "Oct-2020") {
+              var prop = (week[0]/prison.oct_pop);
+              oct_count.push(prop)  }
+          else if (month[0] == "Sep-2020") {
+              var prop = (week[0]/prison.sept_pop);
+              sep_count.push(prop)  }
+          else if (month[0] == "Aug-2020") {
+              var prop = (week[0]/prison.aug_pop);
+              aug_count.push(prop)  }
+          else if (month[0] == "Jul-2020") {
+              var prop = (week[0]/prison.july_pop);
+              jul_count.push(prop)  }
+          else if (month[0] == "Jun-2020") {
+              var prop = (week[0]/prison.june_pop);
+              jun_count.push(prop)  }
+          else if (month[0] == "May-2020") {
+              var prop = (week[0]/prison.may_pop);
+              may_count.push(prop)  }
+          else if (month[0] == "Apr-2020") {
+              var prop = (week[0]/prison.april_pop);
+              apr_count.push(prop)  }
+          else if (month[0] == "Mar-2020") {
+              var prop = (week[0]/prison.march_pop);
+              mar_count.push(prop)  }
+          else {
+            console.log("wow");
+          }
 
 
         });
@@ -100,43 +178,46 @@
               mar_mean = d3.mean(mar_count);
 
 
+              //console.log(d3.mean(countsss));
+
+
 
 
           for (k = 0; k < month_list.length; k++) {
 
               if (month_list[k][0] == "Dec-2020") {
-                properties[month_list[k][0]] = dec_mean *100;
+                properties["dec"] = dec_mean;
+
               }
               else if (month_list[k][0] == "Nov-2020") {
-                properties[month_list[k][0]] = nov_mean*100;
+                properties["nov"] = nov_mean;
               }
               else if (month_list[k][0] == "Oct-2020") {
-                properties[month_list[k][0]] = oct_mean*100;
+                properties["oct"] = oct_mean;
               }
               else if (month_list[k][0] == "Sep-2020") {
-                properties[month_list[k][0]] = sep_mean*100;
+                properties["sep"] = sep_mean;
               }
               else if (month_list[k][0] == "Aug-2020") {
-                properties[month_list[k][0]] = aug_mean*100;
+                properties["aug"] = aug_mean;
               }
               else if (month_list[k][0] == "Jul-2020") {
-                properties[month_list[k][0]] = jul_mean*100;
+                properties["jul"] = jul_mean;
               }
               else if (month_list[k][0] == "Jun-2020") {
-                properties[month_list[k][0]] = jun_mean*100;
+                properties["jun"] = jun_mean;
               }
               else if (month_list[k][0] == "May-2020") {
-                properties[month_list[k][0]] = may_mean*100;
+                properties["may"] = may_mean;
               }
               else if (month_list[k][0] == "Apr-2020") {
-                properties[month_list[k][0]] = apr_mean*100;
+                properties["apr"] = apr_mean;
               }
               else if (month_list[k][0] == "Mar-2020") {
-                properties[month_list[k][0]] = mar_mean*100;
+                properties["mar"] = mar_mean;
               } else{
                 console.log("seomthing bad");
               }
-
 
 
 
@@ -149,7 +230,19 @@
 
 
       });
-      console.log(pop);
+
+      console.log(color(pop[10].properties.dec));
+
+
+
+      svg.selectAll(".state")
+            .style("fill",   d => color(pop[d.id].properties.sep) );
+
+
+
+//
+      //var fil = pop.filter((d) => { return d["properties"].id != 0});
+      //console.log(fil)
 
 
 
