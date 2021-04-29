@@ -5,70 +5,63 @@
 <script src="https://d3js.org/topojson.v3.min.js"></script>
 
 
+<style>
+
+
+</style>
+
+
 <body>
   <h1> Project 2</h1>
 
   <svg id="usmap" height="600" width="900"></svg>
 
+  <input type="range" id="slider" value="0" name="slider" min=0 max=9 step="1"/>
 
+  <span id="range">March 2020</span>
 
+  <script>
+  onload = function() {
+    var $ = function(id) { return document.getElementById(id) ; };
+    $('slider').oninput = function() {
+                                $('range').innerHTML = this.value;
+                                //console.log($('range').innerHTML)
 
-
+                              };
+    $('slider').oninput();
+  };
+  </script>
 
 
   <script>
+  var value;
     const svg = d3.select("#usmap");
     const width = svg.attr("width");
     const height = svg.attr("height");
     const margin = { top: 20, right: 20, bottom: 20, left: 20 };
     const mapWidth = width - margin.left - margin.right;
     const mapHeight = height - margin.top - margin.bottom;
-  //var width = 800, height = 400;
-
-  var value;
-
-  var color = d3.scaleLinear().domain([0, 0.05]).range(["#add8e6","black"]);
-
-  //console.log(color(0.2543));
 
 
+    var color = d3.scaleLinear().domain([0, 1]).range(["#add8e6","#00264D"]);
 
 
-  const map = svg.append("g")
-      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    const map = svg.append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
     const requestData = async function () {
 
 
+
       const us = await d3.json("us1.json");
-      console.log(us);
 
       var states = topojson.feature(us, us.objects.states);
       var statesMesh = topojson.mesh(us, us.objects.states);
-      //states.features[0].properties["key"] = 1;
-      //console.log(states.features[0].properties);
-
-      //console.log(states);
-
-      //projection.scale(1).translate([0, 0]);
-
-      // svg.selectAll("path").data(states.features.filter(function(d) {
-      //   console.log(d.id);
-      //   return d.id;
-      // })).enter().append("path").attr("class", "state").attr("d", path).style("fill","black");
-
-
-   //var projection = d3.geoConicConformal().parallels([35 + (34 / 60), 90 + (46 / 60)]).rotate([98 + 00 / 60, -35 + 00 / 60]).translate(mapWidth / 2, mapHeight / 2]);
-
-
 
       var projection = d3.geoAlbersUsa().fitSize([mapWidth, mapHeight], states);
       var path = d3.geoPath().projection(projection);
 
       var graticule = d3.geoGraticule10();
-
-
-
 
 
       svg.selectAll("path.state").data(states.features)
@@ -82,9 +75,6 @@
       svg.append("path").datum(state)
           .attr("class", "outline")
           .attr("d", path);
-
-
-
 
 
 
@@ -112,6 +102,8 @@
     var pop = [];
     var prison;
     var state;
+
+    var tryy = {}
 
     summed2.forEach((d, i) => {
       var state = d[0], prison = prison_pops[i];
@@ -226,43 +218,106 @@
 
             outer_dic["properties"] = properties;
             pop.push(outer_dic);
+            tryy[state] = outer_dic;
 
 
 
       });
 
-      console.log(color(pop[10].properties.dec));
+      var stateIDs = await d3.tsv("./us-state-names.tsv");
+
+      stateIDs = stateIDs.filter((d) => {
+         return d["name"] != "District of Columbia" && d["name"] != "America Samoa" && d["name"] != "Federated States of Micronesia" && d["name"] != "Palau" && d["name"] != "Guam" && d["name"] != "Marshall Islands" && d["name"] != "Northern Mariana Islands" && d["name"] != "Puerto Rico" && d["name"] != "U.S. Minor Outlying Islands" && d["name"] != "Virgin Islands of the United States";
+       })
+
+      let idToState = {}
+
+      stateIDs.forEach((row, i ) => {
+        idToState[row.id] = row.name;
+      });
+
+      // console.log(tryy[idToState[56]]);
+
+      function filler (a){
+        if(idToState[a]) {
+          return color(tryy[idToState[a]].properties.nov) }
+      }
+
+      d3.selectAll("input").on("change", function change() {
+        value = this.value;
+        //console.log(value);
 
 
 
-      svg.selectAll(".state")
-            .style("fill",   d => color(pop[d.id].properties.sep) );
+       svg.selectAll(".state")
+             .style("fill", function(d) {
+               console.log(d.id)
+               switch (value) {
+                case "0":
+
+                  if(idToState[d.id]) {
+                    return color(tryy[idToState[d.id]].properties.mar);
+  								  break;
+                  } else { break; };
+  							case "1":
+                  if(idToState[d.id]) {
+                    return color(tryy[idToState[d.id]].properties.apr);
+                    break;
+                  } else { break; };
+  							case "2":
+                  if(idToState[d.id]) {
+                    return color(tryy[idToState[d.id]].properties.may);
+                    break;
+                  } else { break; };
+  							case "3":
+                  if(idToState[d.id]) {
+                    return color(tryy[idToState[d.id]].properties.jun);
+                    break;
+                  } else { break; };
+  							case "4":
+                  if(idToState[d.id]) {
+                    return color(tryy[idToState[d.id]].properties.jul);
+                    break;
+                  } else { break; };
+  							case "5":
+                  if(idToState[d.id]) {
+                    return color(tryy[idToState[d.id]].properties.aug);
+                    break;
+                  } else { break; };
+  							case "6":
+                  if(idToState[d.id]) {
+                    return color(tryy[idToState[d.id]].properties.sep);
+                    break;
+                  } else { break; };
+  							case "7":
+                  if(idToState[d.id]) {
+                    return color(tryy[idToState[d.id]].properties.oct);
+                    break;
+                  } else { break; };
+  							case "8":
+                  if(idToState[d.id]) {
+                    return color(tryy[idToState[d.id]].properties.nov);
+                    break;
+                  } else { break; };
+  							case "9":
+                  if(idToState[d.id]) {
+                    return color(tryy[idToState[d.id]].properties.dec);
+                    break;
+                  } else { break; };
+
+
+               //return filler(g.id)
+
+             }
+           });
+             //  d => {
+             // if(idToState[d.id]) {
+             //   return color(tryy[idToState[d.id]].properties.dec) }
+             // });
 
 
 
-//
-      //var fil = pop.filter((d) => { return d["properties"].id != 0});
-      //console.log(fil)
 
-
-
-  //     var stateIDs = await d3.tsv("./us-state-names.tsv");
-  //
-  //     //filter states not in our stateData from stateIDs
-  //     stateIDs = stateIDs.filter((d) => {
-  //       return d["name"] != "District of Columbia" && d["name"] != "America Samoa" && d["name"] != "Federated States of Micronesia" && d["name"] != "Palau" && d["name"] != "Guam" && d["name"] != "Marshall Islands" && d["name"] != "Northern Mariana Islands" && d["name"] != "Puerto Rico" && d["name"] != "U.S. Minor Outlying Islands" && d["name"] != "Virgin Islands of the United States";
-  //     })
-  //
-  //     let stateRates = {};
-  //     let idToState = {}
-  //
-  //     //set up stateCounts to take strings and for strings to be equal to state names and to match state ids with names in idToState
-  //     stateIDs.forEach((row, i ) => {
-  //       //console.log(row.id);
-  //       //console.log(pop[row.id].properties);
-  //
-  //       idToState[row.id] = row.name;
-  //     });
 
 
 
@@ -272,6 +327,9 @@
 
 
     }
+
+
+  )};
 
     requestData();
 
