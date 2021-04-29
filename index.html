@@ -16,25 +16,25 @@
 
   <svg id="usmap" height="600" width="900"></svg>
 
-  <input type="range" id="slider" value="0" name="slider" min=0 max=9 step="1"/>
+  <input type="range" id="slider" value="0" name="slider" min=0 max=9 step="1" />
 
   <span id="range">March 2020</span>
 
   <script>
-  onload = function() {
-    var $ = function(id) { return document.getElementById(id) ; };
-    $('slider').oninput = function() {
-                                $('range').innerHTML = this.value;
-                                //console.log($('range').innerHTML)
+    onload = function () {
+      var $ = function (id) { return document.getElementById(id); };
+      $('slider').oninput = function () {
+        $('range').innerHTML = this.value;
+        //console.log($('range').innerHTML)
 
-                              };
-    $('slider').oninput();
-  };
+      };
+      $('slider').oninput();
+    };
   </script>
 
 
   <script>
-  var value;
+    var value;
     const svg = d3.select("#usmap");
     const width = svg.attr("width");
     const height = svg.attr("height");
@@ -43,11 +43,11 @@
     const mapHeight = height - margin.top - margin.bottom;
 
 
-    var color = d3.scaleLinear().domain([0, 1]).range(["#add8e6","#00264D"]);
+    var color = d3.scaleLinear().domain([0, 1]).range(["#add8e6", "#00264D"]);
 
 
     const map = svg.append("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
     const requestData = async function () {
 
@@ -65,16 +65,16 @@
 
 
       svg.selectAll("path.state").data(states.features)
-          .join("path")
-          .attr("class", "state")
-          .attr("stroke-width", "1px")
-          .attr("stroke", "black")
-          .attr("note", d => d.id)
-          .attr("d", path);
+        .join("path")
+        .attr("class", "state")
+        .attr("stroke-width", "1px")
+        .attr("stroke", "black")
+        .attr("note", d => d.id)
+        .attr("d", path);
 
       svg.append("path").datum(state)
-          .attr("class", "outline")
-          .attr("d", path);
+        .attr("class", "outline")
+        .attr("d", path);
 
 
 
@@ -92,155 +92,168 @@
 
       });
 
-      prison_pops = prison_pops.filter((d) => { return  d["name"] != "Federal"; })
+      prison_pops = prison_pops.filter((d) => { return d["name"] != "Federal"; })
       prison_data = prison_data.filter((d) => { return d['total_prisoner_cases'] != null && d["as_of_date"].getFullYear() != 2021 && d["name"] != "Federal";; })
 
 
-    var summed2 = d3.groups(prison_data, d => d.name, d => d.month_year, d => d.total_prisoner_cases)
-    console.log(summed2);
+      var summed2 = d3.groups(prison_data, d => d.name, d => d.month_year, d => d.total_prisoner_cases)
+      console.log(summed2);
 
-    var pop = [];
-    var prison;
-    var state;
+      var pop = [];
+      var prison;
+      var state;
 
-    var tryy = {}
+      var tryy = {}
 
-    summed2.forEach((d, i) => {
-      var state = d[0], prison = prison_pops[i];
-      var outer_dic = {}, properties = {};
-      outer_dic["id"] = i, properties["id"] = i;
-      properties["state"] = state;
-
-
-      var month_list = d[1];
-      //console.log(month_list);
-
-      var dec_count = [], nov_count = [], oct_count = [], sep_count = [], aug_count = [], jul_count = [], jun_count = [], may_count = [], apr_count = [], mar_count = [];
-
-      var countsss = [];
-      month_list.forEach((month, item) => {
-        var week_list  = month[1];
-
-        week_list.forEach((week, index) => {
-          if (month[0] == "Dec-2020") {
-            //console.log(week[0], prison.dec_pop);
-            var prop = (week[0]/prison.dec_pop);
-            var temp = ((week[0]*1.2)/ (prison.dec_pop + week[0]))
-            countsss.push(temp);
-            dec_count.push(prop)  }
-          else if (month[0] == "Nov-2020") {
-              var prop = (week[0]/prison.nov_pop);
-              nov_count.push(prop)  }
-          else if (month[0] == "Oct-2020") {
-              var prop = (week[0]/prison.oct_pop);
-              oct_count.push(prop)  }
-          else if (month[0] == "Sep-2020") {
-              var prop = (week[0]/prison.sept_pop);
-              sep_count.push(prop)  }
-          else if (month[0] == "Aug-2020") {
-              var prop = (week[0]/prison.aug_pop);
-              aug_count.push(prop)  }
-          else if (month[0] == "Jul-2020") {
-              var prop = (week[0]/prison.july_pop);
-              jul_count.push(prop)  }
-          else if (month[0] == "Jun-2020") {
-              var prop = (week[0]/prison.june_pop);
-              jun_count.push(prop)  }
-          else if (month[0] == "May-2020") {
-              var prop = (week[0]/prison.may_pop);
-              may_count.push(prop)  }
-          else if (month[0] == "Apr-2020") {
-              var prop = (week[0]/prison.april_pop);
-              apr_count.push(prop)  }
-          else if (month[0] == "Mar-2020") {
-              var prop = (week[0]/prison.march_pop);
-              mar_count.push(prop)  }
-          else {
-            console.log("wow");
-          }
+      summed2.forEach((d, i) => {
+        var state = d[0], prison = prison_pops[i];
+        var outer_dic = {}, properties = {};
+        outer_dic["id"] = i, properties["id"] = i;
+        properties["state"] = state;
 
 
-        });
+        var month_list = d[1];
+        //console.log(month_list);
+
+        var dec_count = [], nov_count = [], oct_count = [], sep_count = [], aug_count = [], jul_count = [], jun_count = [], may_count = [], apr_count = [], mar_count = [];
+
+        var countsss = [];
+        month_list.forEach((month, item) => {
+          var week_list = month[1];
+
+          week_list.forEach((week, index) => {
+            if (month[0] == "Dec-2020") {
+              //console.log(week[0], prison.dec_pop);
+              var prop = (week[0] / prison.dec_pop);
+              var temp = ((week[0] * 1.2) / (prison.dec_pop + week[0]))
+              countsss.push(temp);
+              dec_count.push(prop)
+            }
+            else if (month[0] == "Nov-2020") {
+              var prop = (week[0] / prison.nov_pop);
+              nov_count.push(prop)
+            }
+            else if (month[0] == "Oct-2020") {
+              var prop = (week[0] / prison.oct_pop);
+              oct_count.push(prop)
+            }
+            else if (month[0] == "Sep-2020") {
+              var prop = (week[0] / prison.sept_pop);
+              sep_count.push(prop)
+            }
+            else if (month[0] == "Aug-2020") {
+              var prop = (week[0] / prison.aug_pop);
+              aug_count.push(prop)
+            }
+            else if (month[0] == "Jul-2020") {
+              var prop = (week[0] / prison.july_pop);
+              jul_count.push(prop)
+            }
+            else if (month[0] == "Jun-2020") {
+              var prop = (week[0] / prison.june_pop);
+              jun_count.push(prop)
+            }
+            else if (month[0] == "May-2020") {
+              var prop = (week[0] / prison.may_pop);
+              may_count.push(prop)
+            }
+            else if (month[0] == "Apr-2020") {
+              var prop = (week[0] / prison.april_pop);
+              apr_count.push(prop)
+            }
+            else if (month[0] == "Mar-2020") {
+              var prop = (week[0] / prison.march_pop);
+              mar_count.push(prop)
+            }
+            else {
+              console.log("wow");
+            }
+
 
           });
 
-          var dec_mean =  d3.mean(dec_count), nov_mean =  d3.mean(nov_count), oct_mean =  d3.mean(oct_count),
-              sep_mean = d3.mean(sep_count), aug_mean= d3.mean(aug_count), jul_mean = d3.mean(jul_count),
-              jun_mean = d3.mean(jun_count), may_mean = d3.mean(may_count), apr_mean = d3.mean(apr_count),
-              mar_mean = d3.mean(mar_count);
+        });
+
+        var dec_mean = d3.mean(dec_count), nov_mean = d3.mean(nov_count), oct_mean = d3.mean(oct_count),
+          sep_mean = d3.mean(sep_count), aug_mean = d3.mean(aug_count), jul_mean = d3.mean(jul_count),
+          jun_mean = d3.mean(jun_count), may_mean = d3.mean(may_count), apr_mean = d3.mean(apr_count),
+          mar_mean = d3.mean(mar_count);
 
 
-              //console.log(d3.mean(countsss));
-
-
-
-
-          for (k = 0; k < month_list.length; k++) {
-
-              if (month_list[k][0] == "Dec-2020") {
-                properties["dec"] = dec_mean;
-
-              }
-              else if (month_list[k][0] == "Nov-2020") {
-                properties["nov"] = nov_mean;
-              }
-              else if (month_list[k][0] == "Oct-2020") {
-                properties["oct"] = oct_mean;
-              }
-              else if (month_list[k][0] == "Sep-2020") {
-                properties["sep"] = sep_mean;
-              }
-              else if (month_list[k][0] == "Aug-2020") {
-                properties["aug"] = aug_mean;
-              }
-              else if (month_list[k][0] == "Jul-2020") {
-                properties["jul"] = jul_mean;
-              }
-              else if (month_list[k][0] == "Jun-2020") {
-                properties["jun"] = jun_mean;
-              }
-              else if (month_list[k][0] == "May-2020") {
-                properties["may"] = may_mean;
-              }
-              else if (month_list[k][0] == "Apr-2020") {
-                properties["apr"] = apr_mean;
-              }
-              else if (month_list[k][0] == "Mar-2020") {
-                properties["mar"] = mar_mean;
-              } else{
-                console.log("seomthing bad");
-              }
+        //console.log(d3.mean(countsss));
 
 
 
-            };
+
+        for (k = 0; k < month_list.length; k++) {
+
+          if (month_list[k][0] == "Dec-2020") {
+            properties["dec"] = dec_mean;
+
+          }
+          else if (month_list[k][0] == "Nov-2020") {
+            properties["nov"] = nov_mean;
+          }
+          else if (month_list[k][0] == "Oct-2020") {
+            properties["oct"] = oct_mean;
+          }
+          else if (month_list[k][0] == "Sep-2020") {
+            properties["sep"] = sep_mean;
+          }
+          else if (month_list[k][0] == "Aug-2020") {
+            properties["aug"] = aug_mean;
+          }
+          else if (month_list[k][0] == "Jul-2020") {
+            properties["jul"] = jul_mean;
+          }
+          else if (month_list[k][0] == "Jun-2020") {
+            properties["jun"] = jun_mean;
+          }
+          else if (month_list[k][0] == "May-2020") {
+            properties["may"] = may_mean;
+          }
+          else if (month_list[k][0] == "Apr-2020") {
+            properties["apr"] = apr_mean;
+          }
+          else if (month_list[k][0] == "Mar-2020") {
+            properties["mar"] = mar_mean;
+          } else {
+            console.log("seomthing bad");
+          }
 
 
-            outer_dic["properties"] = properties;
-            pop.push(outer_dic);
-            tryy[state] = outer_dic;
+
+        };
+
+
+        outer_dic["properties"] = properties;
+        pop.push(outer_dic);
+        tryy[state] = outer_dic;
 
 
 
       });
 
+      console.log(tryy)
+
       var stateIDs = await d3.tsv("./us-state-names.tsv");
 
       stateIDs = stateIDs.filter((d) => {
-         return d["name"] != "District of Columbia" && d["name"] != "America Samoa" && d["name"] != "Federated States of Micronesia" && d["name"] != "Palau" && d["name"] != "Guam" && d["name"] != "Marshall Islands" && d["name"] != "Northern Mariana Islands" && d["name"] != "Puerto Rico" && d["name"] != "U.S. Minor Outlying Islands" && d["name"] != "Virgin Islands of the United States";
-       })
+        return d["name"] != "District of Columbia" && d["name"] != "America Samoa" && d["name"] != "Federated States of Micronesia" && d["name"] != "Palau" && d["name"] != "Guam" && d["name"] != "Marshall Islands" && d["name"] != "Northern Mariana Islands" && d["name"] != "Puerto Rico" && d["name"] != "U.S. Minor Outlying Islands" && d["name"] != "Virgin Islands of the United States";
+      })
 
       let idToState = {}
 
-      stateIDs.forEach((row, i ) => {
+      stateIDs.forEach((row, i) => {
         idToState[row.id] = row.name;
       });
 
       // console.log(tryy[idToState[56]]);
 
-      function filler (a){
-        if(idToState[a]) {
-          return color(tryy[idToState[a]].properties.nov) }
+      function filler(a) {
+        if (idToState[a]) {
+          return color(tryy[idToState[a]].properties.nov)
+        }
       }
 
       d3.selectAll("input").on("change", function change() {
@@ -249,73 +262,71 @@
 
 
 
-       svg.selectAll(".state")
-             .style("fill", function(d) {
-               console.log(d.id)
-               switch (value) {
-                case "0":
+        svg.selectAll(".state")
+          .style("fill", function (d) {
+            console.log(d.id)
+            switch (value) {
+              case "0":
 
-                  if(idToState[d.id]) {
-                    return color(tryy[idToState[d.id]].properties.mar);
-  								  break;
-                  } else { break; };
-  							case "1":
-                  if(idToState[d.id]) {
-                    return color(tryy[idToState[d.id]].properties.apr);
-                    break;
-                  } else { break; };
-  							case "2":
-                  if(idToState[d.id]) {
-                    return color(tryy[idToState[d.id]].properties.may);
-                    break;
-                  } else { break; };
-  							case "3":
-                  if(idToState[d.id]) {
-                    return color(tryy[idToState[d.id]].properties.jun);
-                    break;
-                  } else { break; };
-  							case "4":
-                  if(idToState[d.id]) {
-                    return color(tryy[idToState[d.id]].properties.jul);
-                    break;
-                  } else { break; };
-  							case "5":
-                  if(idToState[d.id]) {
-                    return color(tryy[idToState[d.id]].properties.aug);
-                    break;
-                  } else { break; };
-  							case "6":
-                  if(idToState[d.id]) {
-                    return color(tryy[idToState[d.id]].properties.sep);
-                    break;
-                  } else { break; };
-  							case "7":
-                  if(idToState[d.id]) {
-                    return color(tryy[idToState[d.id]].properties.oct);
-                    break;
-                  } else { break; };
-  							case "8":
-                  if(idToState[d.id]) {
-                    return color(tryy[idToState[d.id]].properties.nov);
-                    break;
-                  } else { break; };
-  							case "9":
-                  if(idToState[d.id]) {
-                    return color(tryy[idToState[d.id]].properties.dec);
-                    break;
-                  } else { break; };
-
-
-               //return filler(g.id)
-
-             }
-           });
-             //  d => {
-             // if(idToState[d.id]) {
-             //   return color(tryy[idToState[d.id]].properties.dec) }
-             // });
+                if (idToState[d.id]) {
+                  return color(tryy[idToState[d.id]].properties.mar);
+                  break;
+                } else { break; };
+              case "1":
+                if (idToState[d.id]) {
+                  return color(tryy[idToState[d.id]].properties.apr);
+                  break;
+                } else { break; };
+              case "2":
+                if (idToState[d.id]) {
+                  return color(tryy[idToState[d.id]].properties.may);
+                  break;
+                } else { break; };
+              case "3":
+                if (idToState[d.id]) {
+                  return color(tryy[idToState[d.id]].properties.jun);
+                  break;
+                } else { break; };
+              case "4":
+                if (idToState[d.id]) {
+                  return color(tryy[idToState[d.id]].properties.jul);
+                  break;
+                } else { break; };
+              case "5":
+                if (idToState[d.id]) {
+                  return color(tryy[idToState[d.id]].properties.aug);
+                  break;
+                } else { break; };
+              case "6":
+                if (idToState[d.id]) {
+                  return color(tryy[idToState[d.id]].properties.sep);
+                  break;
+                } else { break; };
+              case "7":
+                if (idToState[d.id]) {
+                  return color(tryy[idToState[d.id]].properties.oct);
+                  break;
+                } else { break; };
+              case "8":
+                if (idToState[d.id]) {
+                  return color(tryy[idToState[d.id]].properties.nov);
+                  break;
+                } else { break; };
+              case "9":
+                if (idToState[d.id]) {
+                  return color(tryy[idToState[d.id]].properties.dec);
+                  break;
+                } else { break; };
 
 
+              //return filler(g.id)
+
+            }
+          });
+        //  d => {
+        // if(idToState[d.id]) {
+        //   return color(tryy[idToState[d.id]].properties.dec) }
+        // });
 
 
 
@@ -326,10 +337,13 @@
 
 
 
-    }
 
 
-  )};
+      }
+
+
+      )
+    };
 
     requestData();
 
