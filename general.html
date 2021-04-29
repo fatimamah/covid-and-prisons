@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<meta charset="UTF-8">
+<title>Project 2</title>
+<script src="https://d3js.org/d3.v6.min.js"></script>
+<script src="https://d3js.org/topojson.v3.min.js"></script>
+
+
+<body>
+    <h1> Project 2</h1>
+    <script>
+
+        const requestData = async function () {
+
+            var gen_data = await d3.json("general_covid.json", d3.autoType);
+
+            console.log(gen_data)
+
+            const formatMonthYear = d3.timeFormat('%b-%Y');
+
+
+            gen_data.forEach((d, i) => {
+                d["date"] = new Date(d["date"]);
+                d["month_year"] = formatMonthYear(d["date"]);
+
+
+            });
+
+            console.log(gen_data)
+
+            gen_data = gen_data.filter((d) => { return d['cases_avg_per_100k'] != null && d["date"].getFullYear() != 2021 && d['month_year'] != "Jan-2020" && d['month_year'] != "Feb-2020";; })
+
+            console.log(gen_data)
+
+            var grouped = d3.groups(gen_data, d => d.state, d => d.month_year, d => d.cases_avg_per_100k)
+            console.log(grouped);
+
+            var summed = d3.rollups(gen_data, v => d3.mean(v, d => d3.mean(v, d => ((d.cases_avg_per_100k / 10000) * 100))), d => d.state, d => d.month_year)
+
+            console.log(summed);
+
+            // summed.forEach((d, i) => {
+            //     var state = d[0]
+            //     var outer_dic = {}, properties = {};
+            //     outer_dic["id"] = i
+            //     properties["id"] = i;
+            //     properties["state"] = state;
+            //     var month_list = d[1];
+            //     month_list.forEach((month, item) => {
+            //         for (k = 0; k < month_list.length; k++) {
+            //             properties[month_list[k][0]] = month[0]
+            //         }
+            //     })
+            //     outer_dic["properties"] = properties;
+
+            // })
+
+            // const output = summed.map(a => Object.fromEntries(a));
+            // const pop2 = summed.map(entry => entry.reduce((a, [k, v]) => (a[k] = v, a), {}));
+            // console.log(pop2);
+
+            // console.log(summed);
+
+
+
+        }
+        requestData();
+    </script>
+</body>
+
+</html>
