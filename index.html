@@ -6,8 +6,21 @@
 
 
 <style>
+  .outline {
+    stroke: black;
+    stroke-width: 1px;
+    fill: none;
+  }
 
+  /* .graticule {
+        fill: none;
+        stroke: grey;
+        stroke-width: 1px;
+    } */
 
+  .state {
+    fill: lightgrey;
+  }
 </style>
 
 
@@ -43,7 +56,7 @@
     const mapHeight = height - margin.top - margin.bottom;
 
 
-    var color = d3.scaleLinear().domain([0, 1]).range(["#add8e6", "#00264D"]);
+    var color = d3.scaleLinear().domain([0, 100]).range(["#add8e6", "#00264D"]);
 
 
     const map = svg.append("g")
@@ -188,35 +201,55 @@
         for (k = 0; k < month_list.length; k++) {
 
           if (month_list[k][0] == "Dec-2020") {
-            properties["dec"] = dec_mean;
+            if (dec_mean <= 1) {
+              properties["dec"] = dec_mean * 100;
+            } else { properties["dec"] = null; }
 
           }
           else if (month_list[k][0] == "Nov-2020") {
-            properties["nov"] = nov_mean;
+            if (nov_mean <= 1) {
+              properties["nov"] = nov_mean * 100;
+            } else { properties["nov"] = null; }
           }
           else if (month_list[k][0] == "Oct-2020") {
-            properties["oct"] = oct_mean;
+            if (oct_mean <= 1) {
+              properties["oct"] = oct_mean * 100;
+            } else { properties["oct"] = null; }
           }
           else if (month_list[k][0] == "Sep-2020") {
-            properties["sep"] = sep_mean;
+            if (sep_mean <= 1) {
+              properties["sep"] = sep_mean * 100;
+            } else { properties["sep"] = null; }
           }
           else if (month_list[k][0] == "Aug-2020") {
-            properties["aug"] = aug_mean;
+            if (aug_mean <= 1) {
+              properties["aug"] = aug_mean * 100;
+            } else { properties["aug"] = null; }
           }
           else if (month_list[k][0] == "Jul-2020") {
-            properties["jul"] = jul_mean;
+            if (jul_mean <= 1) {
+              properties["jul"] = jul_mean * 100;
+            } else { properties["jul"] = null; }
           }
           else if (month_list[k][0] == "Jun-2020") {
-            properties["jun"] = jun_mean;
+            if (jun_mean <= 1) {
+              properties["jun"] = jun_mean * 100;
+            } else { properties["jun"] = null; }
           }
           else if (month_list[k][0] == "May-2020") {
-            properties["may"] = may_mean;
+            if (may_mean <= 1) {
+              properties["may"] = may_mean * 100;
+            } else { properties["may"] = null; }
           }
           else if (month_list[k][0] == "Apr-2020") {
-            properties["apr"] = apr_mean;
+            if (apr_mean <= 1) {
+              properties["apr"] = apr_mean * 100;
+            } else { properties["apr"] = null; }
           }
           else if (month_list[k][0] == "Mar-2020") {
-            properties["mar"] = mar_mean;
+            if (mar_mean <= 1) {
+              properties["mar"] = mar_mean * 100;
+            } else { properties["mar"] = null; }
           } else {
             console.log("seomthing bad");
           }
