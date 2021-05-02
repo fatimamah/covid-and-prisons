@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Project 2</title>
+  <script src="https://d3js.org/d3.v6.min.js"></script>
+</head>
+
+<body>
+  <h1>
+    Project 2
+  </h1>
+
+  <svg id="lineplot" height="600" width="900"></svg>
+  <script>
+    const svg = d3.select("svg#lineplot");
+    const width = svg.attr("width");
+    const height = svg.attr("height");
+    const margin = { top: 10, right: 10, bottom: 50, left: 50 };
+    const chartWidth = width - margin.left - margin.right;
+    const chartHeight = height - margin.top - margin.bottom;
+
+    let annotations = svg.append("g").attr("id", "annotations");
+    let chartArea = svg.append("g").attr("id", "points")
+      .attr("transform", `translate(${margin.left},${margin.top})`);
+
+
+    d3.json("general_covid.json", d3.autoType).then((gen_data) => {
+      d3.json("covid_prison_cases.json", d3.autoType).then((prison_data) => {
+        d3.json("prison2.json", d3.autoType).then((prison_pops) => {
+
+
+          var formatMonthYear = d3.timeFormat('%b');
+          gen_data.forEach((d, i) => {
+            d["date"] = new Date(d["date"]);
+            d["month_year"] = formatMonthYear(d["date"]);
+            d["month_year"] = d["month_year"].toLowerCase();
+          });
+
+          gen_data = gen_data.filter((d) => {
+            return d['cases_avg_per_100k'] != null
+              && d["date"].getFullYear() != 2021
+              && d['month_year'] != "jan"
+              && d['month_year'] != "feb"
+              && d['state'] != "District of Columbia"
+              && d['state'] != "Northern Mariana Islands"
+              && d['state'] != "Virgin Islands"
+              && d['state'] != "Guam"
+              && d['state'] != "Puerto Rico";;
+          })
+
+          var gen_grouped = d3.rollups(gen_data, v => d3.mean(v, d => d3.mean(v, d => ((d.cases_avg_per_100k / 10000) * 100))), d => d.state, d => d.month_year)
+
+          var gen_rates = {}
+
+          gen_grouped.forEach((d, i) => {
+            var state = d[0];
+            var outer_dic = {}, properties = {};
+            outer_dic["id"] = i, properties["id"] = i;
+            properties["state"] = state;
+
+            var month_list = d[1];
+
+            month_list.forEach((month, item) => {
+              var rate_list = month[1];
+
+              if (month[0] == "dec") {
+                properties[12] = rate_list;
+              }
+              else if (month[0] == "nov") {
+                properties[11] = rate_list;
+              }
+              else if (month[0] == "oct") {
+                properties[10] = rate_list;
+              }
+              else if (month[0] == "sep") {
+                properties[9] = rate_list;
+              }
+              else if (month[0] == "aug") {
+                properties[8] = rate_list;
+              }
+              else if (month[0] == "jul") {
+                properties[7] = rate_list;
+              }
+              else if (month[0] == "jun") {
+                properties[6] = rate_list;
+              }
+              else if (month[0] == "may") {
+                properties[5] = rate_list;
+              }
+              else if (month[0] == "apr") {
+                properties[4] = rate_list;
+              }
+              else if (month[0] == "mar") {
+                properties[3] = rate_list;
+              }
+              else {
+                console.log("bad thing");
+              }
+            })
+
+
+            outer_dic["properties"] = properties;
+            // pop.push(outer_dic);
+            gen_rates[state] = outer_dic;
+          })
+          console.log(gen_rates)
+
+          formatMonthYear = d3.timeFormat('%b-%Y');
+
+
+          prison_data.forEach((d, i) => {
+            d["as_of_date"] = new Date(d["as_of_date"]);
+            d["month_year"] = formatMonthYear(d["as_of_date"]);
+
+
+          });
+
+          prison_pops = prison_pops.filter((d) => { return d["name"] != "Federal"; })
+          prison_data = prison_data.filter((d) => { return d['total_prisoner_cases'] != null && d["as_of_date"].getFullYear() != 2021 && d["name"] != "Federal";; })
+
+
+          var summed2 = d3.groups(prison_data, d => d.name, d => d.month_year, d => d.total_prisoner_cases)
+          console.log(summed2);
+
+          var pop = [];
+          var prison;
+          var state;
+
+          var tryy = {}
+          summed2.forEach((d, i) => {
+            var state = d[0], prison = prison_pops[i];
+            var outer_dic = {}, properties = {};
+            outer_dic["id"] = i, properties["id"] = i;
+            properties["state"] = state;
+
+
+            var month_list = d[1];
+            //console.log(month_list);
+
+            var dec_count = [], nov_count = [], oct_count = [], sep_count = [], aug_count = [], jul_count = [], jun_count = [], may_count = [], apr_count = [], mar_count = [];
+
+            var countsss = [];
+            month_list.forEach((month, item) => {
+              var week_list = month[1];
+
+              week_list.forEach((week, index) => {
+                if (month[0] == "Dec-2020") {
+                  //console.log(week[0], prison.dec_pop);
+                  var prop = (week[0] / prison.dec_pop);
+                  var temp = ((week[0] * 1.2) / (prison.dec_pop + week[0]))
+                  countsss.push(temp);
+                  dec_count.push(prop)
+                }
+                else if (month[0] == "Nov-2020") {
+                  var prop = (week[0] / prison.nov_pop);
+                  nov_count.push(prop)
+                }
+                else if (month[0] == "Oct-2020") {
+                  var prop = (week[0] / prison.oct_pop);
+                  oct_count.push(prop)
+                }
+                else if (month[0] == "Sep-2020") {
+                  var prop = (week[0] / prison.sept_pop);
+                  sep_count.push(prop)
+                }
+                else if (month[0] == "Aug-2020") {
+                  var prop = (week[0] / prison.aug_pop);
+                  aug_count.push(prop)
+                }
+                else if (month[0] == "Jul-2020") {
+                  var prop = (week[0] / prison.july_pop);
+                  jul_count.push(prop)
+                }
+                else if (month[0] == "Jun-2020") {
+                  var prop = (week[0] / prison.june_pop);
+                  jun_count.push(prop)
+                }
+                else if (month[0] == "May-2020") {
+                  var prop = (week[0] / prison.may_pop);
+                  may_count.push(prop)
+                }
+                else if (month[0] == "Apr-2020") {
+                  var prop = (week[0] / prison.april_pop);
+                  apr_count.push(prop)
+                }
+                else if (month[0] == "Mar-2020") {
+                  var prop = (week[0] / prison.march_pop);
+                  mar_count.push(prop)
+                }
+                else {
+                  console.log("wow");
+                }
+
+
+              });
+
+            });
+
+            var dec_mean = d3.mean(dec_count), nov_mean = d3.mean(nov_count), oct_mean = d3.mean(oct_count),
+              sep_mean = d3.mean(sep_count), aug_mean = d3.mean(aug_count), jul_mean = d3.mean(jul_count),
+              jun_mean = d3.mean(jun_count), may_mean = d3.mean(may_count), apr_mean = d3.mean(apr_count),
+              mar_mean = d3.mean(mar_count);
+
+
+            //console.log(d3.mean(countsss));
+
+
+
+
+            for (k = 0; k < month_list.length; k++) {
+
+              if (month_list[k][0] == "Dec-2020") {
+                properties[12] = dec_mean;
+
+              }
+              else if (month_list[k][0] == "Nov-2020") {
+                properties[11] = nov_mean;
+              }
+              else if (month_list[k][0] == "Oct-2020") {
+                properties[10] = oct_mean;
+              }
+              else if (month_list[k][0] == "Sep-2020") {
+                properties[9] = sep_mean;
+              }
+              else if (month_list[k][0] == "Aug-2020") {
+                properties[8] = aug_mean;
+              }
+              else if (month_list[k][0] == "Jul-2020") {
+                properties[7] = jul_mean;
+              }
+              else if (month_list[k][0] == "Jun-2020") {
+                properties[6] = jun_mean;
+              }
+              else if (month_list[k][0] == "May-2020") {
+                properties[5] = may_mean;
+              }
+              else if (month_list[k][0] == "Apr-2020") {
+                properties[4] = apr_mean;
+              }
+              else if (month_list[k][0] == "Mar-2020") {
+                properties[3] = mar_mean;
+              } else {
+                console.log("seomthing bad");
+              }
+
+
+
+            };
+
+
+            outer_dic["properties"] = properties;
+            pop.push(outer_dic);
+            tryy[state] = outer_dic;
+
+
+
+          });
+
+          console.log(tryy)
+
+
+          //HERE IS WHERE MY CODE STARTS!!!
+          gen_wisconsin = gen_rates["Wisconsin"]
+          //console.log(gen_wisconsin)
+
+          wisconsin_data = []
+          Object.entries(gen_wisconsin["properties"]).forEach(([key, value]) => {
+            if (key != "state" && key != "id") {
+              wisconsin_data.push({
+                "Month": parseInt(key),
+                "Value": value
+              })
+            }
+          })
+          console.log(wisconsin_data)
+
+          wisconsin_prison_data = []
+
+          Object.entries(tryy["Wisconsin"]["properties"]).forEach(([key, value]) => {
+            if (key != "state" && key != "id") {
+              wisconsin_prison_data.push({
+                "Month": parseInt(key),
+                "Value": value
+              })
+            }
+          })
+
+          const xExtent = d3.extent(wisconsin_prison_data, d => d["Month"], wisconsin_data, d => d["Month"])
+          const xScale = d3.scaleLinear().domain(xExtent).range([0, chartWidth]);
+
+          const yExtent = d3.extent(wisconsin_prison_data, d => d["Value"])
+          const yScale = d3.scaleLinear().domain(yExtent).range([chartHeight, 0])
+
+
+          console.log(wisconsin_prison_data)
+          // // Y axis
+          let leftAxis = d3.axisLeft(yScale)
+          let leftGridlines = d3.axisLeft(yScale)
+            .tickSize(-chartWidth - 10)
+            .tickFormat("")
+          annotations.append("g")
+            .attr("class", "y axis")
+            .attr("transform", `translate(${margin.left - 10},${margin.top})`)
+            .call(leftAxis)
+          annotations.append("g")
+            .attr("class", "y gridlines")
+            .attr("transform", `translate(${margin.left - 10},${margin.top})`)
+            .call(leftGridlines)
+
+          // X axis
+
+          let bottomAxis = d3.axisBottom(xScale)
+          let bottomGridlines = d3.axisBottom(xScale)
+            .tickSize(-chartHeight - 10)
+            .tickFormat("")
+          annotations.append("g")
+            .attr("class", "x axis")
+            .attr("transform", `translate(${margin.left},${chartHeight + margin.top + 10})`)
+            .call(bottomAxis)
+          annotations.append("g")
+            .attr("class", "x gridlines")
+            .attr("transform", `translate(${margin.left},${chartHeight + margin.top + 10})`)
+            .call(bottomGridlines)
+
+          // // line gen
+
+          // chartArea.selectAll("circle").data(wisconsin_data)
+          //   .join("circle")
+          //   .attr("r", 3)
+          //   .attr("fill", "navy")
+          //   .attr("cx", d => xScale(d["Month"]))
+          //   .attr("cy", d => yScale(d["Value"]))
+          //   .raise()
+          var lineGen = d3.line()
+            .x(d => xScale(d["Month"]))
+            .y(d => yScale(d["Value"]))
+            .curve(d3.curveMonotoneX)
+
+          chartArea.append("path")
+            .datum(wisconsin_data)
+            .attr("class", "line")
+            .attr("fill", "none")
+            .attr("stroke", "steelblue")
+            .attr("stroke-width", 3)
+            .attr("d", lineGen)
+
+
+
+          // chartArea.selectAll("circle").data(wisconsin_prison_data)
+          //   .join("circle")
+          //   .attr("r", 3)
+          //   .attr("fill", "red")
+          //   .attr("cx", d => xScale(d["Month"]))
+          //   .attr("cy", d => yScale(d["Value"]))
+          //   .raise()
+
+          lineGen2 = d3.line()
+            .x(d => xScale(d["Month"]))
+            .y(d => yScale(d["Value"]))
+            .curve(d3.curveMonotoneX)
+
+          chartArea.append("path")
+            .datum(wisconsin_prison_data)
+            .attr("class", "line")
+            .attr("fill", "none")
+            .attr("stroke", "orange")
+            .attr("stroke-width", 3)
+            .attr("d", lineGen2)
+
+
+
+
+
+
+
+
+
+
+        })
+      })
+
+    })
+  </script>
+</body>
+
+</html>
