@@ -31,23 +31,67 @@
 
   <input type="range" id="slider" value="0" name="slider" min=0 max=9 step="1" />
 
-  <span id="range">March 2020</span>
+  <label id="rangeText" />
 
   <script>
+
+    function rangeValues(v) {
+
+      if (v == 0) {
+        return "March 2020"
+      } else if (v == 1) {
+        return "April 2020"
+      } else if (v == 2) {
+        return "May 2020"
+      } else if (v == 3) {
+        return "June 2020"
+      } else if (v == 4) {
+        return "July 2020"
+      } else if (v == 5) {
+        return "August 2020"
+      } else if (v == 6) {
+        return "September 2020"
+      } else if (v == 7) {
+        return "October 2020"
+      } else if (v == 8) {
+        return "November 2020"
+      } else if (v == 9) {
+        return "December 2020"
+      }
+    };
+
     onload = function () {
       var $ = function (id) { return document.getElementById(id); };
+      // $('rangeText').text(rangeValues[$('slider').val()]);
       $('slider').oninput = function () {
-        $('range').innerHTML = this.value;
+        // $('rangeText').innerHTML = this.value;
+        var text_label = rangeValues(this.value);
+        $('rangeText').innerHTML = (text_label);
         //console.log($('range').innerHTML)
 
       };
       $('slider').oninput();
     };
+
+
+
+    // $(function () {
+
+    //   // on page load, set the text of the label based the value of the range
+    //   $('#rangeText').text(rangeValues[$('#slider').val()]);
+
+    //   // setup an event handler to set the text when the range value is dragged (see event for input) or changed (see event for change)
+    //   $('#slider').on('input change', function () {
+    //     $('#rangeText').text(rangeValues[$(this).val()]);
+    //   });
+
+    // });
   </script>
 
 
   <script>
     var value;
+    var text2;
     const svg = d3.select("#usmap");
     const width = svg.attr("width");
     const height = svg.attr("height");
@@ -77,7 +121,7 @@
       var graticule = d3.geoGraticule10();
 
 
-      svg.selectAll("path.state").data(states.features)
+      map.selectAll("path.state").data(states.features)
         .join("path")
         .attr("class", "state")
         .attr("stroke-width", "1px")
@@ -85,7 +129,7 @@
         .attr("note", d => d.id)
         .attr("d", path);
 
-      svg.append("path").datum(state)
+      map.append("path").datum(state)
         .attr("class", "outline")
         .attr("d", path);
 
@@ -289,9 +333,12 @@
         }
       }
 
+
+
       d3.selectAll("input").on("change", function change() {
         value = this.value;
         //console.log(value);
+        text2 = 0;
 
 
 
@@ -302,51 +349,61 @@
               case "0":
 
                 if (idToState[d.id]) {
+                  text2 = "mar";
                   return color(tryy[idToState[d.id]].properties.mar);
                   break;
                 } else { break; };
               case "1":
                 if (idToState[d.id]) {
+                  text2 = "apr"
                   return color(tryy[idToState[d.id]].properties.apr);
                   break;
                 } else { break; };
               case "2":
                 if (idToState[d.id]) {
+                  text2 = "may"
                   return color(tryy[idToState[d.id]].properties.may);
                   break;
                 } else { break; };
               case "3":
                 if (idToState[d.id]) {
+                  text2 = "jun"
                   return color(tryy[idToState[d.id]].properties.jun);
                   break;
                 } else { break; };
               case "4":
                 if (idToState[d.id]) {
+                  text2 = "jul"
                   return color(tryy[idToState[d.id]].properties.jul);
                   break;
                 } else { break; };
               case "5":
                 if (idToState[d.id]) {
+                  text2 = "aug"
                   return color(tryy[idToState[d.id]].properties.aug);
                   break;
                 } else { break; };
               case "6":
                 if (idToState[d.id]) {
+                  text2 = "sep"
                   return color(tryy[idToState[d.id]].properties.sep);
                   break;
                 } else { break; };
               case "7":
                 if (idToState[d.id]) {
+                  text2 = "oct"
                   return color(tryy[idToState[d.id]].properties.oct);
                   break;
                 } else { break; };
               case "8":
                 if (idToState[d.id]) {
+                  text2 = "nov"
                   return color(tryy[idToState[d.id]].properties.nov);
                   break;
                 } else { break; };
               case "9":
                 if (idToState[d.id]) {
+                  text2 = "dec"
                   return color(tryy[idToState[d.id]].properties.dec);
                   break;
                 } else { break; };
@@ -376,6 +433,101 @@
 
 
       )
+      let tooltipWidth = 120;
+      let tooltipHeight = 40;
+
+
+      let tooltip = map.append("g")
+        .attr("class", "tooltip")
+        .attr("visibility", "hidden");
+      rectangle = tooltip.append("rect")
+        .attr("fill", "black")
+        .attr("opacity", 0.9)
+        .attr("x", -tooltipWidth / 2.0)
+        .attr("y", 0)
+        .attr("width", tooltipWidth)
+        .attr("height", tooltipHeight)
+      let txt = tooltip.append("text")
+        .attr("fill", "white")
+        .attr("text-anchor", "middle")
+        .attr("alignment-baseline", "hanging")
+        .attr("x", 0)
+        .attr("y", 2);
+      let txt2 = tooltip.append("text")
+        .attr("fill", "white")
+        .attr("text-anchor", "middle")
+        .attr("alignment-baseline", "hanging")
+        .attr("x", 0)
+        .attr("y", 22);
+
+
+      let momesh = map.append("path")
+        .attr("class", "mouseover outline")
+        .attr("d", "");
+
+
+      d3.selectAll(".state").on("mouseenter", mouseEntersPlot);
+      d3.selectAll(".state").on("mouseout", mouseLeavesPlot);
+
+
+      function mouseEntersPlot() {
+        // Make tooltip visible
+        tooltip.style("visibility", "visible")
+
+        // Find the state SVG element and add stroke
+        let state = d3.select(this);
+        let stateID = state.datum().id;
+        // console.log(state.datum())
+
+        var mo = topojson.mesh(us, us.objects.states, function (a, b) { return a.id === stateID || b.id === stateID; });
+        momesh.datum(mo).attr("d", path)
+
+
+
+        // value = this.value;
+        // txt2.text(gen_rates[idToState[stateID]].properties.dec)
+
+        var label2 = tryy[idToState[stateID]].properties[text2]
+
+        if (label2 != null) {
+          txt
+            .attr("visibility", "visible")
+          txt.text(idToState[stateID]);
+          var label2_formatted = label2.toFixed(2) + "%"
+          txt2.text(label2_formatted)
+            .attr("text-anchor", "middle")
+            .attr("alignment-baseline", "hanging")
+            .attr("x", 0)
+
+          rectangle
+            .attr("width", tooltipWidth)
+        }
+        else {
+
+          rectangle
+            .attr("width", 160)
+          txt
+            .attr("visibility", "hidden")
+          txt2.text("State Data not Available")
+            .attr("text-anchor", "middle")
+            .attr("alignment-baseline", "middle")
+            .attr("x", 20)
+
+        }
+
+        let bounds = path.bounds(state.datum())
+        let xPos = (bounds[0][0] + bounds[1][0]) / 2.0;
+        let yPos = bounds[1][1];
+        tooltip.attr("transform", `translate(${xPos},${yPos})`);
+      }
+
+      function mouseLeavesPlot() {
+        tooltip.style("visibility", "hidden");
+
+        let state = d3.select(this);
+        momesh.attr("d", "");
+
+      }
     };
 
     requestData();

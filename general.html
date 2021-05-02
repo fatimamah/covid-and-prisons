@@ -43,6 +43,7 @@
     </script>
     <script>
         var value;
+        var text2;
         const svg = d3.select("#genmap");
         const width = svg.attr("width");
         const height = svg.attr("height");
@@ -262,7 +263,7 @@
             d3.selectAll("input").on("change", function change() {
                 value = this.value;
 
-                text2 = 0;
+                text2 = "";
 
                 gen_map.selectAll(".state")
                     .style("fill", function (d) {
