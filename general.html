@@ -195,61 +195,147 @@
             //     }
             // }
 
+            let tooltipWidth = 120;
+            let tooltipHeight = 40;
+
+
+            let tooltip = gen_map.append("g")
+                .attr("class", "tooltip")
+                .attr("visibility", "hidden");
+            tooltip.append("rect")
+                .attr("fill", "black")
+                .attr("opacity", 0.9)
+                .attr("x", -tooltipWidth / 2.0)
+                .attr("y", 0)
+                .attr("width", tooltipWidth)
+                .attr("height", tooltipHeight)
+            let txt = tooltip.append("text")
+                .attr("fill", "white")
+                .attr("text-anchor", "middle")
+                .attr("alignment-baseline", "hanging")
+                .attr("x", 0)
+                .attr("y", 2);
+            let txt2 = tooltip.append("text")
+                .attr("fill", "white")
+                .attr("text-anchor", "middle")
+                .attr("alignment-baseline", "hanging")
+                .attr("x", 0)
+                .attr("y", 22);
+
+
+            let momesh = gen_map.append("path")
+                .attr("class", "mouseover outline")
+                .attr("d", "");
+
+
+            d3.selectAll(".state").on("mouseenter", mouseEntersPlot);
+            d3.selectAll(".state").on("mouseout", mouseLeavesPlot);
+
+
+            function mouseEntersPlot() {
+                // Make tooltip visible
+                tooltip.style("visibility", "visible")
+
+                // Find the state SVG element and add stroke
+                let state = d3.select(this);
+                let stateID = state.datum().id;
+                // console.log(state.datum())
+
+                var mo = topojson.mesh(us, us.objects.states, function (a, b) { return a.id === stateID || b.id === stateID; });
+                momesh.datum(mo).attr("d", path)
+
+                txt.text(idToState[stateID]);
+
+                // value = this.value;
+                // txt2.text(gen_rates[idToState[stateID]].properties.dec)
+
+                var label2 = gen_rates[idToState[stateID]].properties[text2]
+                txt2.text(label2)
+
+                let bounds = path.bounds(state.datum())
+                let xPos = (bounds[0][0] + bounds[1][0]) / 2.0;
+                let yPos = bounds[1][1];
+                tooltip.attr("transform", `translate(${xPos},${yPos})`);
+            }
+
+
             d3.selectAll("input").on("change", function change() {
                 value = this.value;
+
+                text2 = 0;
 
                 gen_map.selectAll(".state")
                     .style("fill", function (d) {
                         // console.log(d.id)
                         switch (value) {
                             case "0":
-
+                                // console.log(gen_rates[idToState[d.id]])
                                 if (idToState[d.id]) {
+                                    text2 = "mar";
+                                    console.log(text2)
                                     return color(gen_rates[idToState[d.id]].properties.mar);
                                     break;
                                 } else { break; };
                             case "1":
                                 if (idToState[d.id]) {
+                                    text2 = "apr"
+                                    // text2 = gen_rates[idToState[d.id]].properties.apr;
                                     return color(gen_rates[idToState[d.id]].properties.apr);
                                     break;
                                 } else { break; };
                             case "2":
                                 if (idToState[d.id]) {
+                                    text2 = "may"
+                                    // text2 = gen_rates[idToState[d.id]].properties.may;
                                     return color(gen_rates[idToState[d.id]].properties.may);
                                     break;
                                 } else { break; };
                             case "3":
                                 if (idToState[d.id]) {
+                                    text2 = "jun"
+                                    // text2 = gen_rates[idToState[d.id]].properties.jun;
                                     return color(gen_rates[idToState[d.id]].properties.jun);
                                     break;
                                 } else { break; };
                             case "4":
                                 if (idToState[d.id]) {
+                                    text2 = "jul"
+                                    // text2 = gen_rates[idToState[d.id]].properties.jul;
                                     return color(gen_rates[idToState[d.id]].properties.jul);
                                     break;
                                 } else { break; };
                             case "5":
                                 if (idToState[d.id]) {
+                                    text2 = "aug"
+                                    // text2 = gen_rates[idToState[d.id]].properties.aug;
                                     return color(gen_rates[idToState[d.id]].properties.aug);
                                     break;
                                 } else { break; };
                             case "6":
                                 if (idToState[d.id]) {
+                                    text2 = "sep"
+                                    // text2 = gen_rates[idToState[d.id]].properties.sep;
                                     return color(gen_rates[idToState[d.id]].properties.sep);
                                     break;
                                 } else { break; };
                             case "7":
                                 if (idToState[d.id]) {
+                                    text2 = "oct"
+                                    // text2 = gen_rates[idToState[d.id]].properties.oct;
                                     return color(gen_rates[idToState[d.id]].properties.oct);
                                     break;
                                 } else { break; };
                             case "8":
                                 if (idToState[d.id]) {
+                                    text2 = "nov"
+                                    // text2 = gen_rates[idToState[d.id]].properties.nov;
                                     return color(gen_rates[idToState[d.id]].properties.nov);
                                     break;
                                 } else { break; };
                             case "9":
                                 if (idToState[d.id]) {
+                                    text2 = "dec"
+                                    // text2 = gen_rates[idToState[d.id]].properties.dec;
                                     return color(gen_rates[idToState[d.id]].properties.dec);
                                     break;
                                 } else { break; };
@@ -257,10 +343,19 @@
                         }
                     });
 
+            })
+
+
+            function mouseLeavesPlot() {
+                tooltip.style("visibility", "hidden");
+
+                let state = d3.select(this);
+                momesh.attr("d", "");
+
             }
 
 
-            )
+
 
 
 
