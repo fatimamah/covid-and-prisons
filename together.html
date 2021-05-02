@@ -9,12 +9,13 @@
         stroke-width: 1px;
         fill: none;
     }
+    #title{
+      margin-left: 40%;
+    }
 
-    /* .graticule {
-        fill: none;
-        stroke: grey;
-        stroke-width: 1px;
-    } */
+    #all_maps{
+      width: 100%;
+    }
 
     .state {
         fill: lightgrey;
@@ -23,32 +24,92 @@
     .state2 {
         fill: lightgrey;
     }
+
+    .title{
+      font-size: 100px;
+    }
+
+    #slider {
+      width:40%;
+
+    }
+    #range {
+
+  display: none;
+
+    }
+
+
+
+    input[type="range"] {
+     -webkit-appearance: none;
+    }
+
+    input[type="range"]:focus {
+     outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-runnable-track {
+     background: lightgrey;
+     height: 20px;
+     margin-left: 20px;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+       -webkit-appearance: none;
+       height: 35px;
+       width: 35px;
+       background: #00264D;
+       margin-top: -8px;
+       border-radius: 10%;
+       cursor: pointer;
+    }
+
+
 </style>
 
 <body>
     <h1> Project 2</h1>
-    <input type="range" id="slider" value="0" name="slider" min=0 max=9 step="1" />
 
-    <span id="range">March 2020</span>
-    <div>
+    <h3 id = "title"> March 2020</h3>
+
+
+
+    <div id= "all_maps">
         <svg id="prisonmap" height="400" width="600"></svg>
         <svg id="genmap" height="400" width="600"></svg>
+        <svg id ="legend" height="400" width="140"/>
+
 
     </div>
+
+    <input type="range" id="slider" value="0" name="slider" min=0 max=9 step="1" />
+    <span id="range"></span>
+
+
+
+
+
+
+
+
+
+
+
 
 
 
     <script>
-        onload = function () {
-            var $ = function (id) { return document.getElementById(id); };
-            $('slider').oninput = function () {
-                $('range').innerHTML = this.value;
-                //console.log($('range').innerHTML)
+    window.onload = function() {
+      var $ = function(id) { return document.getElementById(id); };
 
-            };
-            $('slider').oninput();
-        };
+      $('slider').oninput = function() { $('range').innerHTML = this.value;};
+      $('slider').oninput();
+    };
+
+
     </script>
+
     <script>
         var value;
         var value2;
@@ -92,32 +153,10 @@
             var graticule = d3.geoGraticule10();
 
 
-            pri_map.selectAll("path.state").data(states.features)
-                .join("path")
-                .attr("class", "state")
-                .attr("stroke-width", "1px")
-                .attr("stroke", "black")
-                .attr("note", d => d.id)
-                .attr("d", path);
-
-            pri_map.append("path").datum(statesMesh)
-                .attr("class", "outline")
-                .attr("d", path);
-
             var projection2 = d3.geoAlbersUsa().fitSize([mapWidth2, mapHeight2], states);
             var path2 = d3.geoPath().projection(projection2);
 
-            gen_map.selectAll("path.state").data(states.features)
-                .join("path")
-                .attr("class", "state2")
-                .attr("stroke-width", "1px")
-                .attr("stroke", "black")
-                .attr("note", d => d.id)
-                .attr("d", path2);
 
-            gen_map.append("path").datum(statesMesh)
-                .attr("class", "outline")
-                .attr("d", path2);
 
             var prison_data = await d3.json("covid_prison_cases.json", d3.autoType);
             var prison_pops = await d3.json("prison2.json", d3.autoType);
@@ -129,8 +168,6 @@
             prison_data.forEach((d, i) => {
                 d["as_of_date"] = new Date(d["as_of_date"]);
                 d["month_year"] = formatMonthYear(d["as_of_date"]);
-
-
             });
 
             prison_pops = prison_pops.filter((d) => { return d["name"] != "Federal"; })
@@ -380,7 +417,59 @@
                 idToState[row.id] = row.name;
             });
 
-            // console.log(tryy[idToState[56]]);
+
+            pri_map.selectAll("path.state").data(states.features)
+                .join("path")
+                .attr("class", "state")
+                .attr("stroke-width", "1px")
+                .attr("stroke", "black")
+                .attr("note", d => d.id)
+                .attr("d", path)
+                .style("fill", function(d) {
+                  if(idToState[d.id]){
+                    return color(tryy[idToState[d.id]].properties.mar);
+                  }
+
+				});
+
+            pri_map.append("path").datum(statesMesh)
+                .attr("class", "outline")
+                .attr("d", path);
+
+
+
+                gen_map.selectAll("path.state").data(states.features)
+                    .join("path")
+                    .attr("class", "state2")
+                    .attr("stroke-width", "1px")
+                    .attr("stroke", "black")
+                    .attr("note", d => d.id)
+                    .attr("d", path2)
+                    .style("fill", function(d) {
+                      if(idToState[d.id]){
+                        return color(gen_rates[idToState[d.id]].properties.mar);
+                      }
+
+    				})  ;
+
+                gen_map.append("path").datum(statesMesh)
+                    .attr("class", "outline")
+                    .attr("d", path2);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
             function filler(a) {
                 if (idToState[a]) {
@@ -388,64 +477,127 @@
                 }
             }
 
+            const tit = d3.select("#title");
+            console.log(tit);
+
             d3.selectAll("input").on("change", function change() {
                 value = this.value;
-                //console.log(value);
 
+                if (value == 0) {
+                    tit.text("March 2020");
+                } else if (value == 1) {
+                    tit.text("April 2020");
+                } else if (value == 2) {
+                    tit.text("May 2020");
+                } else if (value == 3) {
+                    tit.text("June 2020");
+                } else if (value == 4) {
+                    tit.text("July 2020");
+                }else if (value == 5) {
+                    tit.text("August 2020");
+                } else if (value == 6) {
+                    tit.text("September 2020");
+                } else if (value == 7) {
+                    tit.text("October 2020");
+                } else if (value == 8) {
+                    tit.text("November 2020");
+                } else if (value == 9) {
+                    tit.text("December 2020");
+                }  else{
+                  console.log("problem");
+                };
 
 
                 pri_map.selectAll(".state")
                     .style("fill", function (d) {
-                        console.log(d.id)
                         switch (value) {
                             case "0":
-
                                 if (idToState[d.id]) {
+                                  if (color(tryy[idToState[d.id]].properties.mar) == "rgb(0, 0, 0)"){
+                                    return "lightgrey";
+                                    break;
+                                  }
                                     return color(tryy[idToState[d.id]].properties.mar);
                                     break;
                                 } else { break; };
                             case "1":
                                 if (idToState[d.id]) {
+                                  if (color(tryy[idToState[d.id]].properties.apr) == "rgb(0, 0, 0)"){
+                                    return "lightgrey";
+                                    break;
+                                  }
                                     return color(tryy[idToState[d.id]].properties.apr);
                                     break;
                                 } else { break; };
                             case "2":
                                 if (idToState[d.id]) {
+                                  if (color(tryy[idToState[d.id]].properties.may) == "rgb(0, 0, 0)"){
+                                    return "lightgrey";
+                                    break;
+                                  }
                                     return color(tryy[idToState[d.id]].properties.may);
                                     break;
                                 } else { break; };
                             case "3":
                                 if (idToState[d.id]) {
+                                  if (color(tryy[idToState[d.id]].properties.jun) == "rgb(0, 0, 0)"){
+                                    return "lightgrey";
+                                    break;
+                                  }
                                     return color(tryy[idToState[d.id]].properties.jun);
                                     break;
                                 } else { break; };
                             case "4":
                                 if (idToState[d.id]) {
+                                  if (color(tryy[idToState[d.id]].properties.jul) == "rgb(0, 0, 0)"){
+                                    return "lightgrey";
+                                    break;
+                                  }
                                     return color(tryy[idToState[d.id]].properties.jul);
                                     break;
                                 } else { break; };
                             case "5":
                                 if (idToState[d.id]) {
+                                  if (color(tryy[idToState[d.id]].properties.aug) == "rgb(0, 0, 0)"){
+                                    return "lightgrey";
+                                    break;
+                                  }
                                     return color(tryy[idToState[d.id]].properties.aug);
                                     break;
                                 } else { break; };
                             case "6":
                                 if (idToState[d.id]) {
+                                  if (color(tryy[idToState[d.id]].properties.sep) == "rgb(0, 0, 0)"){
+                                    return "lightgrey";
+                                    break;
+                                  }
                                     return color(tryy[idToState[d.id]].properties.sep);
                                     break;
                                 } else { break; };
                             case "7":
                                 if (idToState[d.id]) {
+                                  if (color(tryy[idToState[d.id]].properties.oct) == "rgb(0, 0, 0)"){
+                                    return "lightgrey";
+                                    break;
+                                  }
                                     return color(tryy[idToState[d.id]].properties.oct);
                                     break;
                                 } else { break; };
                             case "8":
                                 if (idToState[d.id]) {
+                                  if (color(tryy[idToState[d.id]].properties.nov) == "rgb(0, 0, 0)"){
+                                    return "lightgrey";
+                                    break;
+                                  }
                                     return color(tryy[idToState[d.id]].properties.nov);
                                     break;
                                 } else { break; };
                             case "9":
                                 if (idToState[d.id]) {
+                                  if (color(tryy[idToState[d.id]].properties.dec) == "rgb(0, 0, 0)"){
+                                    return "lightgrey";
+                                    break;
+                                  }
                                     return color(tryy[idToState[d.id]].properties.dec);
                                     break;
                                 } else { break; };
@@ -458,70 +610,139 @@
                 value2 = this.value;
                 gen_map.selectAll(".state2")
                     .style("fill", function (d) {
-                        // console.log(d.id)
+                      //console.log(this.value);
+
+
+
+
                         switch (value2) {
                             case "0":
-
                                 if (idToState[d.id]) {
+                                  if (color(gen_rates[idToState[d.id]].properties.mar) == "rgb(0, 0, 0)"){
+                                    return "lightgrey";
+                                    break;
+                                  }
                                     return color(gen_rates[idToState[d.id]].properties.mar);
                                     break;
                                 } else { break; };
                             case "1":
                                 if (idToState[d.id]) {
+                                  if (color(gen_rates[idToState[d.id]].properties.apr) == "rgb(0, 0, 0)"){
+                                    return "lightgrey";
+                                    break;
+                                  }
                                     return color(gen_rates[idToState[d.id]].properties.apr);
                                     break;
                                 } else { break; };
                             case "2":
                                 if (idToState[d.id]) {
+                                  if (color(gen_rates[idToState[d.id]].properties.may) == "rgb(0, 0, 0)"){
+                                    return "lightgrey";
+                                    break;
+                                  }
                                     return color(gen_rates[idToState[d.id]].properties.may);
                                     break;
                                 } else { break; };
                             case "3":
                                 if (idToState[d.id]) {
+                                  if (color(gen_rates[idToState[d.id]].properties.jun) == "rgb(0, 0, 0)"){
+                                    return "lightgrey";
+                                    break;
+                                  }
                                     return color(gen_rates[idToState[d.id]].properties.jun);
                                     break;
                                 } else { break; };
                             case "4":
                                 if (idToState[d.id]) {
+                                  if (color(gen_rates[idToState[d.id]].properties.jul) == "rgb(0, 0, 0)"){
+                                    return "lightgrey";
+                                    break;
+                                  }
                                     return color(gen_rates[idToState[d.id]].properties.jul);
                                     break;
                                 } else { break; };
                             case "5":
                                 if (idToState[d.id]) {
+                                  if (color(gen_rates[idToState[d.id]].properties.aug) == "rgb(0, 0, 0)"){
+                                    return "lightgrey";
+                                    break;
+                                  }
                                     return color(gen_rates[idToState[d.id]].properties.aug);
                                     break;
                                 } else { break; };
                             case "6":
                                 if (idToState[d.id]) {
+                                  if (color(gen_rates[idToState[d.id]].properties.sep) == "rgb(0, 0, 0)"){
+                                    return "lightgrey";
+                                    break;
+                                  }
                                     return color(gen_rates[idToState[d.id]].properties.sep);
                                     break;
                                 } else { break; };
                             case "7":
                                 if (idToState[d.id]) {
+                                  if (color(gen_rates[idToState[d.id]].properties.oct) == "rgb(0, 0, 0)"){
+                                    return "lightgrey";
+                                    break;
+                                  }
                                     return color(gen_rates[idToState[d.id]].properties.oct);
                                     break;
                                 } else { break; };
                             case "8":
                                 if (idToState[d.id]) {
+                                  if (color(gen_rates[idToState[d.id]].properties.nov) == "rgb(0, 0, 0)"){
+                                    return "lightgrey";
+                                    break;
+                                  }
                                     return color(gen_rates[idToState[d.id]].properties.nov);
                                     break;
                                 } else { break; };
                             case "9":
                                 if (idToState[d.id]) {
+                                  if (color(gen_rates[idToState[d.id]].properties.dec) == "rgb(0, 0, 0)"){
+                                    return "lightgrey";
+                                    break;
+                                  }
                                     return color(gen_rates[idToState[d.id]].properties.dec);
                                     break;
                                 } else { break; };
                         }
                     });
-            })
+            });
 
+      //legend code
 
+      var w = 140, h = 450;
+			var key = d3.select("#legend").append("svg").attr("id", "key").attr("width", w).attr("height", h);
 
+			var legend = key.append("defs").append("svg:linearGradient")
+                       .attr("id", "gradient").attr("x1", "100%")
+                       .attr("y1", "0%").attr("x2", "100%")
+                       .attr("y2", "100%").attr("spreadMethod", "pad");
 
+			legend.append("stop")
+            .attr("offset", "0%")
+            .attr("stop-color", "#00264D")
+            .attr("stop-opacity", 1);
 
+			legend.append("stop")
+            .attr("offset", "100%")
+            .attr("stop-color", "#add8e6")
+            .attr("stop-opacity", 1);
 
+			key.append("rect")
+         .attr("width", w - 100).attr("height", h - 100)
+         .style("fill", "url(#gradient)")
+         .attr("transform", "translate(40,10)");
 
-        }
+		  var y = d3.scaleLinear().range([350, 0]).domain([0, 100]);
+
+			var yAxis = d3.axisLeft(y).tickFormat(function(d) { return d + "%"; });
+
+			key.append("g").attr("class", "y axis").attr("transform", "translate(35,10)").call(yAxis).append("text").attr("transform", "rotate(-90)").attr("y", 30).attr("dy", ".71em").style("text-anchor", "end").text("Student teacher ratio");
+
+      }
+
         requestData();
     </script>
 
