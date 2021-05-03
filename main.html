@@ -78,6 +78,7 @@
         <svg id="genmap" height="400" width="600"></svg>
         <svg id="legend" height="400" width="140"></svg>
     </div>
+    <svg id="lineplot" height="600" width="900"></svg>
 
     <input type="range" id="slider" value="0" name="slider" min=0 max=9 step="1" />
     <span id="range"></span>
@@ -86,8 +87,10 @@
         window.onload = function () {
             var $ = function (id) { return document.getElementById(id); };
 
+
             $('slider').oninput = function () { $('range').innerHTML = this.value; };
             $('slider').oninput();
+
         };
 
 
@@ -114,6 +117,21 @@
         const gen_mapHeight = gen_height - gen_margin.top - gen_margin.bottom;
         const gen_map = gen_svg.append("g")
             .attr("transform", "translate(" + gen_margin.left + "," + gen_margin.top + ")");
+
+        var color = d3.scaleLinear().domain([0, 100]).range(["#add8e6", "#00264D"]);
+
+
+        //line graph
+        const svg = d3.select("svg#lineplot");
+        const width = svg.attr("width");
+        const height = svg.attr("height");
+        const margin = { top: 10, right: 10, bottom: 50, left: 50 };
+        const chartWidth = width - margin.left - margin.right;
+        const chartHeight = height - margin.top - margin.bottom;
+
+        let annotations = svg.append("g").attr("id", "annotations");
+        let chartArea = svg.append("g").attr("id", "points")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
 
 
         const requestData = async function () {
@@ -300,7 +318,7 @@
 
             gen_data = gen_data.filter((d) => { return d['cases_avg_per_100k'] != null && d["date"].getFullYear() != 2021 && d['month_year'] != "jan" && d['month_year'] != "feb" && d['state'] != "District of Columbia" && d['state'] != "Northern Mariana Islands" && d['state'] != "Virgin Islands" && d['state'] != "Guam" && d['state'] != "Puerto Rico";; })
 
-            var gen_grouped = d3.rollups(gen_data, v => d3.mean(v, d => d3.mean(v, d => ((d.cases_avg_per_100k / 10000) * 100)) * 100), d => d.state, d => d.month_year)
+            var gen_grouped = d3.rollups(gen_data, v => d3.mean(v, d => ((d.cases_avg_per_100k / 100000) * 100)), d => d.state, d => d.month_year)
 
             var gen_rates = {}
 
@@ -376,6 +394,12 @@
                 .attr("stroke", "black")
                 .attr("note", d => d.id)
                 .attr("d", pri_path)
+                .style("fill", function (d) {
+                    if (idToState[d.id]) {
+                        return color(pri_rates[idToState[d.id]].properties.mar);
+                    }
+
+                });
 
             pri_map.append("path").datum(statesMesh)
                 .attr("class", "outline")
@@ -390,6 +414,12 @@
                 .attr("stroke", "black")
                 .attr("note", d => d.id)
                 .attr("d", gen_path)
+                .style("fill", function (d) {
+                    if (idToState[d.id]) {
+                        return color(gen_rates[idToState[d.id]].properties.mar);
+                    }
+
+                });
 
             gen_map.append("path").datum(statesMesh)
                 .attr("class", "outline")
@@ -398,9 +428,9 @@
 
 
             //fill in colors and change title
-            var color = d3.scaleLinear().domain([0, 100]).range(["#add8e6", "#00264D"]);
-            var value;
-            var text2;
+
+            var value = 0;
+            var text2 = "mar";
             const tit = d3.select("#title");
 
             d3.selectAll("input").on("change", function change() {
@@ -597,8 +627,300 @@
             key.append("g").attr("class", "y axis").attr("transform", "translate(35,10)").call(yAxis).append("text").attr("transform", "rotate(-90)").attr("y", 30).attr("dy", ".71em").style("text-anchor", "end").text("Student teacher ratio");
 
 
+            //hover
+            let tooltipWidth = 120;
+            let tooltipHeight = 40;
+
+            let gentooltipWidth = 120;
+            let gentooltipHeight = 40;
 
 
+            let tooltip = pri_map.append("g")
+                .attr("class", "tooltip")
+                .attr("visibility", "hidden");
+            let gen_tooltip = gen_map.append("g")
+                .attr("class", "tooltip")
+                .attr("visibility", "hidden");
+            rectangle = tooltip.append("rect")
+                .attr("fill", "black")
+                .attr("opacity", 0.9)
+                .attr("x", -tooltipWidth / 2.0)
+                .attr("y", 0)
+                .attr("width", tooltipWidth)
+                .attr("height", tooltipHeight)
+            gen_rectangle = gen_tooltip.append("rect")
+                .attr("fill", "black")
+                .attr("opacity", 0.9)
+                .attr("x", -gentooltipWidth / 2.0)
+                .attr("y", 0)
+                .attr("width", gentooltipWidth)
+                .attr("height", gentooltipHeight)
+            let txt = tooltip.append("text")
+                .attr("fill", "white")
+                .attr("text-anchor", "middle")
+                .attr("alignment-baseline", "hanging")
+                .attr("x", 0)
+                .attr("y", 2);
+            let gen_txt = gen_tooltip.append("text")
+                .attr("fill", "white")
+                .attr("text-anchor", "middle")
+                .attr("alignment-baseline", "hanging")
+                .attr("x", 0)
+                .attr("y", 2);
+            let txt2 = tooltip.append("text")
+                .attr("fill", "white")
+                .attr("text-anchor", "middle")
+                .attr("alignment-baseline", "hanging")
+                .attr("x", 0)
+                .attr("y", 22);
+            let gen_txt2 = gen_tooltip.append("text")
+                .attr("fill", "white")
+                .attr("text-anchor", "middle")
+                .attr("alignment-baseline", "hanging")
+                .attr("x", 0)
+                .attr("y", 22);
+
+
+            let momesh = pri_map.append("path")
+                .attr("class", "mouseover outline")
+                .attr("d", "");
+
+            let gen_momesh = gen_map.append("path")
+                .attr("class", "mouseover outline")
+                .attr("d", "");
+
+
+            d3.selectAll(".pri_state").on("mouseenter", mouseEntersPlot);
+            d3.selectAll(".pri_state").on("mouseout", mouseLeavesPlot);
+
+            d3.selectAll(".gen_state").on("mouseenter", mouseEntersgenPlot);
+            d3.selectAll(".gen_state").on("mouseout", mouseLeavesgenPlot);
+
+
+            function mouseEntersPlot() {
+                // Make tooltip visible
+                tooltip.style("visibility", "visible")
+
+                // Find the state SVG element and add stroke
+                let state = d3.select(this);
+                let stateID = state.datum().id;
+                // console.log(state.datum())
+
+                var mo = topojson.mesh(us, us.objects.states, function (a, b) { return a.id === stateID || b.id === stateID; });
+                momesh.datum(mo).attr("d", pri_path)
+
+                var label2 = pri_rates[idToState[stateID]].properties[text2]
+
+                if (label2 != null) {
+                    txt
+                        .attr("visibility", "visible")
+                    txt.text(idToState[stateID]);
+                    var label2_formatted = label2.toFixed(2) + "%"
+                    txt2.text(label2_formatted)
+                        .attr("text-anchor", "middle")
+                        .attr("alignment-baseline", "hanging")
+                        .attr("x", 0)
+
+                    rectangle
+                        .attr("width", tooltipWidth)
+                }
+                else {
+
+                    rectangle
+                        .attr("width", 160)
+                    txt
+                        .attr("visibility", "hidden")
+                    txt2.text("State Data not Available")
+                        .attr("text-anchor", "middle")
+                        .attr("alignment-baseline", "middle")
+                        .attr("x", 20)
+
+                }
+
+                let bounds = pri_path.bounds(state.datum())
+                let xPos = (bounds[0][0] + bounds[1][0]) / 2.0;
+                let yPos = bounds[1][1];
+                tooltip.attr("transform", `translate(${xPos},${yPos})`);
+            }
+
+            function mouseLeavesPlot() {
+                tooltip.style("visibility", "hidden");
+
+                let state = d3.select(this);
+                momesh.attr("d", "");
+
+            }
+
+
+
+            function mouseEntersgenPlot() {
+                // Make tooltip visible
+                gen_tooltip.style("visibility", "visible")
+
+                // Find the state SVG element and add stroke
+                let state = d3.select(this);
+                let stateID = state.datum().id;
+                // console.log(state.datum())
+
+                var mo = topojson.mesh(us, us.objects.states, function (a, b) { return a.id === stateID || b.id === stateID; });
+                momesh.datum(mo).attr("d", gen_path)
+
+                var label2 = gen_rates[idToState[stateID]].properties[text2]
+
+                if (label2 != null) {
+                    gen_txt
+                        .attr("visibility", "visible")
+                    gen_txt.text(idToState[stateID]);
+                    var label2_formatted = label2.toFixed(2) + "%"
+                    gen_txt2.text(label2_formatted)
+                        .attr("text-anchor", "middle")
+                        .attr("alignment-baseline", "hanging")
+                        .attr("x", 0)
+
+                    gen_rectangle
+                        .attr("width", gentooltipWidth)
+                }
+                else {
+
+                    gen_rectangle
+                        .attr("width", 160)
+                    gen_txt
+                        .attr("visibility", "hidden")
+                    gen_txt2.text("State Data not Available")
+                        .attr("text-anchor", "middle")
+                        .attr("alignment-baseline", "middle")
+                        .attr("x", 20)
+
+                }
+
+                let bounds = gen_path.bounds(state.datum())
+                let xPos = (bounds[0][0] + bounds[1][0]) / 2.0;
+                let yPos = bounds[1][1];
+                gen_tooltip.attr("transform", `translate(${xPos},${yPos})`);
+            }
+
+            function mouseLeavesgenPlot() {
+                gen_tooltip.style("visibility", "hidden");
+
+                let state = d3.select(this);
+                momesh.attr("d", "");
+
+            }
+
+            console.log(pri_rates)
+
+            console.log(gen_data)
+            console.log(gen_grouped)
+            console.log(gen_rates)
+
+
+            //HERE IS WHERE MY CODE STARTS!!!
+            gen_wisconsin = gen_rates["Wisconsin"]
+            //console.log(gen_wisconsin)
+
+            wisconsin_data = []
+            Object.entries(gen_wisconsin["properties"]).forEach(([key, value]) => {
+                if (key != "state" && key != "id") {
+                    wisconsin_data.push({
+                        "Month": parseInt(key),
+                        "Value": value
+                    })
+                }
+            })
+            console.log(wisconsin_data)
+
+            wisconsin_prison_data = []
+
+            Object.entries(pri_rates["Wisconsin"]["properties"]).forEach(([key, value]) => {
+                if (key != "state" && key != "id") {
+                    wisconsin_prison_data.push({
+                        "Month": parseInt(key),
+                        "Value": value
+                    })
+                }
+            })
+
+            const xExtent = d3.extent(wisconsin_prison_data, d => d["Month"], wisconsin_data, d => d["Month"])
+            const xScale = d3.scaleLinear().domain(xExtent).range([0, chartWidth]);
+
+            const yExtent = d3.extent(wisconsin_prison_data, d => d["Value"])
+            const yScale = d3.scaleLinear().domain(yExtent).range([chartHeight, 0])
+
+
+            console.log(wisconsin_prison_data)
+            // // Y axis
+            let leftAxis = d3.axisLeft(yScale)
+            let leftGridlines = d3.axisLeft(yScale)
+                .tickSize(-chartWidth - 10)
+                .tickFormat("")
+            annotations.append("g")
+                .attr("class", "y axis")
+                .attr("transform", `translate(${margin.left - 10},${margin.top})`)
+                .call(leftAxis)
+            annotations.append("g")
+                .attr("class", "y gridlines")
+                .attr("transform", `translate(${margin.left - 10},${margin.top})`)
+                .call(leftGridlines)
+
+            // X axis
+
+            let bottomAxis = d3.axisBottom(xScale)
+            let bottomGridlines = d3.axisBottom(xScale)
+                .tickSize(-chartHeight - 10)
+                .tickFormat("")
+            annotations.append("g")
+                .attr("class", "x axis")
+                .attr("transform", `translate(${margin.left},${chartHeight + margin.top + 10})`)
+                .call(bottomAxis)
+            annotations.append("g")
+                .attr("class", "x gridlines")
+                .attr("transform", `translate(${margin.left},${chartHeight + margin.top + 10})`)
+                .call(bottomGridlines)
+
+            // // line gen
+
+            // chartArea.selectAll("circle").data(wisconsin_data)
+            //   .join("circle")
+            //   .attr("r", 3)
+            //   .attr("fill", "navy")
+            //   .attr("cx", d => xScale(d["Month"]))
+            //   .attr("cy", d => yScale(d["Value"]))
+            //   .raise()
+            var lineGen = d3.line()
+                .x(d => xScale(d["Month"]))
+                .y(d => yScale(d["Value"]))
+                .curve(d3.curveMonotoneX)
+
+            chartArea.append("path")
+                .datum(wisconsin_data)
+                .attr("class", "line")
+                .attr("fill", "none")
+                .attr("stroke", "steelblue")
+                .attr("stroke-width", 3)
+                .attr("d", lineGen)
+
+
+
+            // chartArea.selectAll("circle").data(wisconsin_prison_data)
+            //   .join("circle")
+            //   .attr("r", 3)
+            //   .attr("fill", "red")
+            //   .attr("cx", d => xScale(d["Month"]))
+            //   .attr("cy", d => yScale(d["Value"]))
+            //   .raise()
+
+            lineGen2 = d3.line()
+                .x(d => xScale(d["Month"]))
+                .y(d => yScale(d["Value"]))
+                .curve(d3.curveMonotoneX)
+
+            chartArea.append("path")
+                .datum(wisconsin_prison_data)
+                .attr("class", "line")
+                .attr("fill", "none")
+                .attr("stroke", "orange")
+                .attr("stroke-width", 3)
+                .attr("d", lineGen2)
 
 
 
