@@ -376,7 +376,6 @@
                 .attr("stroke", "black")
                 .attr("note", d => d.id)
                 .attr("d", pri_path)
-                .style("fill", helperS(pri_rates))
 
             pri_map.append("path").datum(statesMesh)
                 .attr("class", "outline")
@@ -398,88 +397,150 @@
 
 
 
+            //fill in colors
+            var color = d3.scaleLinear().domain([0, 100]).range(["#add8e6", "#00264D"]);
+            var value;
+            var gen_value;
+            var text2;
+            var gen_text2;
             d3.selectAll("input").on("change", function change() {
                 value = this.value;
                 text2 = "";
-
-                helperS(pri_map, pri_rates, pri_state);
-                helperS(gen_map, gen_rates, gen_state);
-            })
-
-
-
-            //helper function
-            var color = d3.scaleLinear().domain([0, 100]).range(["#add8e6", "#00264D"]);
-            var value;
-            var text2;
-            function helperS(map, dataset, st) {
-                map.selectAll("st")
+                pri_map.selectAll(".pri_state")
                     .style("fill", function (d) {
                         switch (value) {
                             case "0":
                                 if (idToState[d.id]) {
                                     text2 = "mar";
-                                    return color(dataset[idToState[d.id]].properties.mar);
+                                    return color(pri_rates[idToState[d.id]].properties.mar);
                                     break;
                                 } else { break; };
                             case "1":
                                 if (idToState[d.id]) {
                                     text2 = "apr"
-                                    return color(dataset[idToState[d.id]].properties.apr);
+                                    return color(pri_rates[idToState[d.id]].properties.apr);
                                     break;
                                 } else { break; };
                             case "2":
                                 if (idToState[d.id]) {
                                     text2 = "may"
-                                    return color(dataset[idToState[d.id]].properties.may);
+                                    return color(pri_rates[idToState[d.id]].properties.may);
                                     break;
                                 } else { break; };
                             case "3":
                                 if (idToState[d.id]) {
                                     text2 = "jun"
-                                    return color(dataset[idToState[d.id]].properties.jun);
+                                    return color(pri_rates[idToState[d.id]].properties.jun);
                                     break;
                                 } else { break; };
                             case "4":
                                 if (idToState[d.id]) {
                                     text2 = "jul"
-                                    return color(dataset[idToState[d.id]].properties.jul);
+                                    return color(pri_rates[idToState[d.id]].properties.jul);
                                     break;
                                 } else { break; };
                             case "5":
                                 if (idToState[d.id]) {
                                     text2 = "aug"
-                                    return color(dataset[idToState[d.id]].properties.aug);
+                                    return color(pri_rates[idToState[d.id]].properties.aug);
                                     break;
                                 } else { break; };
                             case "6":
                                 if (idToState[d.id]) {
                                     text2 = "sep"
-                                    return color(dataset[idToState[d.id]].properties.sep);
+                                    return color(pri_rates[idToState[d.id]].properties.sep);
                                     break;
                                 } else { break; };
                             case "7":
                                 if (idToState[d.id]) {
                                     text2 = "oct"
-                                    return color(dataset[idToState[d.id]].properties.oct);
+                                    return color(pri_rates[idToState[d.id]].properties.oct);
                                     break;
                                 } else { break; };
                             case "8":
                                 if (idToState[d.id]) {
                                     text2 = "nov"
-                                    return color(dataset[idToState[d.id]].properties.nov);
+                                    return color(pri_rates[idToState[d.id]].properties.nov);
                                     break;
                                 } else { break; };
                             case "9":
                                 if (idToState[d.id]) {
                                     text2 = "dec"
-                                    return color(dataset[idToState[d.id]].properties.dec);
+                                    return color(pri_rates[idToState[d.id]].properties.dec);
                                     break;
                                 } else { break; };
                         }
                     });
+                gen_value = this.value;
+                gen_text2 = "";
+                gen_map.selectAll(".gen_state")
+                    .style("fill", function (d) {
+                        switch (gen_value) {
+                            case "0":
+                                if (idToState[d.id]) {
+                                    gen_text2 = "mar";
+                                    return color(gen_rates[idToState[d.id]].properties.mar);
+                                    break;
+                                } else { break; };
+                            case "1":
+                                if (idToState[d.id]) {
+                                    gen_text2 = "apr"
+                                    return color(gen_rates[idToState[d.id]].properties.apr);
+                                    break;
+                                } else { break; };
+                            case "2":
+                                if (idToState[d.id]) {
+                                    gen_text2 = "may"
+                                    return color(gen_rates[idToState[d.id]].properties.may);
+                                    break;
+                                } else { break; };
+                            case "3":
+                                if (idToState[d.id]) {
+                                    gen_text2 = "jun"
+                                    return color(gen_rates[idToState[d.id]].properties.jun);
+                                    break;
+                                } else { break; };
+                            case "4":
+                                if (idToState[d.id]) {
+                                    gen_text2 = "jul"
+                                    return color(gen_rates[idToState[d.id]].properties.jul);
+                                    break;
+                                } else { break; };
+                            case "5":
+                                if (idToState[d.id]) {
+                                    gen_text2 = "aug"
+                                    return color(gen_rates[idToState[d.id]].properties.aug);
+                                    break;
+                                } else { break; };
+                            case "6":
+                                if (idToState[d.id]) {
+                                    gen_text2 = "sep"
+                                    return color(gen_rates[idToState[d.id]].properties.sep);
+                                    break;
+                                } else { break; };
+                            case "7":
+                                if (idToState[d.id]) {
+                                    gen_text2 = "oct"
+                                    return color(gen_rates[idToState[d.id]].properties.oct);
+                                    break;
+                                } else { break; };
+                            case "8":
+                                if (idToState[d.id]) {
+                                    gen_text2 = "nov"
+                                    return color(gen_rates[idToState[d.id]].properties.nov);
+                                    break;
+                                } else { break; };
+                            case "9":
+                                if (idToState[d.id]) {
+                                    gen_text2 = "dec"
+                                    return color(gen_rates[idToState[d.id]].properties.dec);
+                                    break;
+                                } else { break; };
 
+                        }
+                    });
             }
+            )
 
 
 
