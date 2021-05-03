@@ -318,6 +318,9 @@
 
             gen_data = gen_data.filter((d) => { return d['cases_avg_per_100k'] != null && d["date"].getFullYear() != 2021 && d['month_year'] != "jan" && d['month_year'] != "feb" && d['state'] != "District of Columbia" && d['state'] != "Northern Mariana Islands" && d['state'] != "Virgin Islands" && d['state'] != "Guam" && d['state'] != "Puerto Rico";; })
 
+            var grouped = d3.groups(gen_data, d => d.state, d => d.month_year, d => d.cases_avg_per_100k)
+            console.log(grouped)
+
             var gen_grouped = d3.rollups(gen_data, v => d3.mean(v, d => ((d.cases_avg_per_100k / 100000) * 100)), d => d.state, d => d.month_year)
 
             var gen_rates = {}
@@ -745,6 +748,8 @@
 
             function mouseLeavesPlot() {
                 tooltip.style("visibility", "hidden");
+                txt
+                    .attr("visibility", "hidden")
 
                 let state = d3.select(this);
                 momesh.attr("d", "");
@@ -801,6 +806,8 @@
 
             function mouseLeavesgenPlot() {
                 gen_tooltip.style("visibility", "hidden");
+                gen_txt
+                    .attr("visibility", "hidden")
 
                 let state = d3.select(this);
                 momesh.attr("d", "");
