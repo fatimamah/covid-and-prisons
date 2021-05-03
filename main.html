@@ -31,7 +31,7 @@
     }
 
     #slider {
-        width: 40%;
+        width: 30%;
 
     }
 
@@ -70,7 +70,8 @@
     <h1> Project 2</h1>
 
     <h3 id="title">March 2020</h3>
-
+    <input type="range" id="slider" value="0" name="slider" min=0 max=9 step="1" />
+    <span id="range"></span>
 
 
     <div id="all_maps">
@@ -80,8 +81,6 @@
     </div>
     <svg id="lineplot" height="600" width="900"></svg>
 
-    <input type="range" id="slider" value="0" name="slider" min=0 max=9 step="1" />
-    <span id="range"></span>
 
     <script>
         window.onload = function () {
