@@ -383,11 +383,9 @@
             })
 
             let idToState = {}
-
             stateIDs.forEach((row, i) => {
                 idToState[row.id] = row.name;
             });
-
 
             pri_map.selectAll("path.state").data(states.features)
                 .join("path")
@@ -403,11 +401,15 @@
 
                 });
 
+            pri_map.append("text")
+                   .text("US Prison Covid Rates")
+                   .attr("x", (400 / 2))
+                   .attr("y", (30 / 2));
+
+
             pri_map.append("path").datum(statesMesh)
                 .attr("class", "outline")
                 .attr("d", pri_path);
-
-
 
             gen_map.selectAll("path.state").data(states.features)
                 .join("path")
@@ -420,14 +422,16 @@
                     if (idToState[d.id]) {
                         return color(gen_rates[idToState[d.id]].properties.mar);
                     }
-
                 });
 
             gen_map.append("path").datum(statesMesh)
                 .attr("class", "outline")
                 .attr("d", gen_path);
 
-
+            gen_map.append("text")
+                    .text("General US Covid Rates")
+                    .attr("x", (400 / 2))
+                    .attr("y", (30 / 2));
 
             //fill in colors and change title
 
