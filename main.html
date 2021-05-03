@@ -397,13 +397,40 @@
 
 
 
-            //fill in colors
+            //fill in colors and change title
             var color = d3.scaleLinear().domain([0, 100]).range(["#add8e6", "#00264D"]);
             var value;
             var text2;
+            const tit = d3.select("#title");
+
             d3.selectAll("input").on("change", function change() {
                 value = this.value;
                 text2 = "";
+
+                if (value == 0) {
+                    tit.text("March 2020");
+                } else if (value == 1) {
+                    tit.text("April 2020");
+                } else if (value == 2) {
+                    tit.text("May 2020");
+                } else if (value == 3) {
+                    tit.text("June 2020");
+                } else if (value == 4) {
+                    tit.text("July 2020");
+                } else if (value == 5) {
+                    tit.text("August 2020");
+                } else if (value == 6) {
+                    tit.text("September 2020");
+                } else if (value == 7) {
+                    tit.text("October 2020");
+                } else if (value == 8) {
+                    tit.text("November 2020");
+                } else if (value == 9) {
+                    tit.text("December 2020");
+                } else {
+                    console.log("problem");
+                };
+
                 pri_map.selectAll(".pri_state")
                     .style("fill", function (d) {
                         switch (value) {
@@ -537,6 +564,38 @@
                     });
             }
             )
+
+            //legend code
+
+            var w = 140, h = 450;
+            var key = d3.select("#legend").append("svg").attr("id", "key").attr("width", w).attr("height", h);
+
+            var legend = key.append("defs").append("svg:linearGradient")
+                .attr("id", "gradient").attr("x1", "100%")
+                .attr("y1", "0%").attr("x2", "100%")
+                .attr("y2", "100%").attr("spreadMethod", "pad");
+
+            legend.append("stop")
+                .attr("offset", "0%")
+                .attr("stop-color", "#00264D")
+                .attr("stop-opacity", 1);
+
+            legend.append("stop")
+                .attr("offset", "100%")
+                .attr("stop-color", "#add8e6")
+                .attr("stop-opacity", 1);
+
+            key.append("rect")
+                .attr("width", w - 100).attr("height", h - 100)
+                .style("fill", "url(#gradient)")
+                .attr("transform", "translate(40,10)");
+
+            var y = d3.scaleLinear().range([350, 0]).domain([0, 100]);
+
+            var yAxis = d3.axisLeft(y).tickFormat(function (d) { return d + "%"; });
+
+            key.append("g").attr("class", "y axis").attr("transform", "translate(35,10)").call(yAxis).append("text").attr("transform", "rotate(-90)").attr("y", 30).attr("dy", ".71em").style("text-anchor", "end").text("Student teacher ratio");
+
 
 
 
