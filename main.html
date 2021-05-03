@@ -300,7 +300,7 @@
 
             gen_data = gen_data.filter((d) => { return d['cases_avg_per_100k'] != null && d["date"].getFullYear() != 2021 && d['month_year'] != "jan" && d['month_year'] != "feb" && d['state'] != "District of Columbia" && d['state'] != "Northern Mariana Islands" && d['state'] != "Virgin Islands" && d['state'] != "Guam" && d['state'] != "Puerto Rico";; })
 
-            var gen_grouped = d3.rollups(gen_data, v => d3.mean(v, d => d3.mean(v, d => ((d.cases_avg_per_100k / 10000) * 100))), d => d.state, d => d.month_year)
+            var gen_grouped = d3.rollups(gen_data, v => d3.mean(v, d => d3.mean(v, d => ((d.cases_avg_per_100k / 10000) * 100)) * 100), d => d.state, d => d.month_year)
 
             var gen_rates = {}
 
@@ -400,9 +400,7 @@
             //fill in colors
             var color = d3.scaleLinear().domain([0, 100]).range(["#add8e6", "#00264D"]);
             var value;
-            var gen_value;
             var text2;
-            var gen_text2;
             d3.selectAll("input").on("change", function change() {
                 value = this.value;
                 text2 = "";
@@ -471,68 +469,66 @@
                                 } else { break; };
                         }
                     });
-                gen_value = this.value;
-                gen_text2 = "";
                 gen_map.selectAll(".gen_state")
                     .style("fill", function (d) {
-                        switch (gen_value) {
+                        switch (value) {
                             case "0":
                                 if (idToState[d.id]) {
-                                    gen_text2 = "mar";
+                                    text2 = "mar";
                                     return color(gen_rates[idToState[d.id]].properties.mar);
                                     break;
                                 } else { break; };
                             case "1":
                                 if (idToState[d.id]) {
-                                    gen_text2 = "apr"
+                                    text2 = "apr"
                                     return color(gen_rates[idToState[d.id]].properties.apr);
                                     break;
                                 } else { break; };
                             case "2":
                                 if (idToState[d.id]) {
-                                    gen_text2 = "may"
+                                    text2 = "may"
                                     return color(gen_rates[idToState[d.id]].properties.may);
                                     break;
                                 } else { break; };
                             case "3":
                                 if (idToState[d.id]) {
-                                    gen_text2 = "jun"
+                                    text2 = "jun"
                                     return color(gen_rates[idToState[d.id]].properties.jun);
                                     break;
                                 } else { break; };
                             case "4":
                                 if (idToState[d.id]) {
-                                    gen_text2 = "jul"
+                                    text2 = "jul"
                                     return color(gen_rates[idToState[d.id]].properties.jul);
                                     break;
                                 } else { break; };
                             case "5":
                                 if (idToState[d.id]) {
-                                    gen_text2 = "aug"
+                                    text2 = "aug"
                                     return color(gen_rates[idToState[d.id]].properties.aug);
                                     break;
                                 } else { break; };
                             case "6":
                                 if (idToState[d.id]) {
-                                    gen_text2 = "sep"
+                                    text2 = "sep"
                                     return color(gen_rates[idToState[d.id]].properties.sep);
                                     break;
                                 } else { break; };
                             case "7":
                                 if (idToState[d.id]) {
-                                    gen_text2 = "oct"
+                                    text2 = "oct"
                                     return color(gen_rates[idToState[d.id]].properties.oct);
                                     break;
                                 } else { break; };
                             case "8":
                                 if (idToState[d.id]) {
-                                    gen_text2 = "nov"
+                                    text2 = "nov"
                                     return color(gen_rates[idToState[d.id]].properties.nov);
                                     break;
                                 } else { break; };
                             case "9":
                                 if (idToState[d.id]) {
-                                    gen_text2 = "dec"
+                                    text2 = "dec"
                                     return color(gen_rates[idToState[d.id]].properties.dec);
                                     break;
                                 } else { break; };
