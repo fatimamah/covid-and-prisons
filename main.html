@@ -64,10 +64,21 @@
         border-radius: 10%;
         cursor: pointer;
     }
+
+    h1 {
+        font-family: Arial;
+        text-align: center;
+        padding: 10px;
+        background-color: #00264D;
+        color: white;
+        font-size: 30px;
+    }
 </style>
 
 <body>
-    <h1> Project 2</h1>
+    <h1> Visualization of COVID-19 Case Rates in Prisons and General Population <span style="display: block;"> March
+            2020
+            - December 2020</span></h1>
 
     <h3 id="title">March 2020</h3>
     <input type="range" id="slider" value="0" name="slider" min=0 max=9 step="1" />
@@ -77,8 +88,11 @@
     <div id="all_maps">
         <svg id="prisonmap" height="400" width="600"></svg>
         <svg id="genmap" height="400" width="600"></svg>
-        <svg id="legend" height="400" width="140"></svg>
+        <svg id="legend" height="400" width="110"></svg>
     </div>
+    <h4 id="note">* General population map colors don't show visible change because all covid rates are under 1%. To see
+        how rates
+        change, hover over states.</h4>
     <svg id="lineplot" height="600" width="900"></svg>
 
 
@@ -166,7 +180,7 @@
             prison_data = prison_data.filter((d) => { return d['total_prisoner_cases'] != null && d["as_of_date"].getFullYear() != 2021 && d["name"] != "Federal";; })
 
             var pri_grouped = d3.groups(prison_data, d => d.name, d => d.month_year, d => d.total_prisoner_cases)
-            // console.log(pri_grouped);
+
 
             var pop = [];
             var prison;
@@ -181,7 +195,7 @@
                 properties["state"] = state;
 
                 var month_list = d[1];
-                //console.log(month_list);
+
                 var dec_count = [], nov_count = [], oct_count = [], sep_count = [], aug_count = [], jul_count = [], jun_count = [], may_count = [], apr_count = [], mar_count = [];
 
                 var countsss = [];
@@ -189,7 +203,7 @@
                     var week_list = month[1];
                     week_list.forEach((week, index) => {
                         if (month[0] == "Dec-2020") {
-                            //console.log(week[0], prison.dec_pop);
+
                             var prop = (week[0] / prison.dec_pop);
                             var temp = ((week[0] * 1.2) / (prison.dec_pop + week[0]))
                             countsss.push(temp);
@@ -302,11 +316,11 @@
                 pop.push(outer_dic);
                 pri_rates[state] = outer_dic;
             });
-            // console.log(pri_rates)
+
 
             //general data
             var gen_data = await d3.json("general_covid.json", d3.autoType);
-            // console.log(gen_data)
+
             const formatMonth = d3.timeFormat('%b');
 
             gen_data.forEach((d, i) => {
@@ -317,8 +331,6 @@
 
             gen_data = gen_data.filter((d) => { return d['cases_avg_per_100k'] != null && d["date"].getFullYear() != 2021 && d['month_year'] != "jan" && d['month_year'] != "feb" && d['state'] != "District of Columbia" && d['state'] != "Northern Mariana Islands" && d['state'] != "Virgin Islands" && d['state'] != "Guam" && d['state'] != "Puerto Rico";; })
 
-            // var grouped = d3.groups(gen_data, d => d.state, d => d.month_year, d => d.cases_avg_per_100k)
-            // console.log(grouped)
 
             var gen_grouped = d3.rollups(gen_data, v => d3.mean(v, d => ((d.cases_avg_per_100k / 100000) * 100)), d => d.state, d => d.month_year)
 
@@ -633,7 +645,7 @@
             key.append("g").attr("class", "y axis").attr("transform", "translate(35,10)").call(yAxis).append("text").attr("transform", "rotate(-90)").attr("y", 30).attr("dy", ".71em").style("text-anchor", "end").text("Student teacher ratio");
 
 
-            //hover
+            //hover code taken from Professor Rzeszotarski’s code in lecture. Changed to account for null/no state data and to get the percentages from the slider on input.
             let tooltipWidth = 120;
             let tooltipHeight = 40;
 
@@ -652,14 +664,12 @@
                 .attr("opacity", 0.9)
                 .attr("x", -tooltipWidth / 2.0)
                 .attr("y", 0)
-                .attr("width", tooltipWidth)
                 .attr("height", tooltipHeight)
             gen_rectangle = gen_tooltip.append("rect")
                 .attr("fill", "black")
                 .attr("opacity", 0.9)
                 .attr("x", -gentooltipWidth / 2.0)
                 .attr("y", 0)
-                .attr("width", gentooltipWidth)
                 .attr("height", gentooltipHeight)
             let txt = tooltip.append("text")
                 .attr("fill", "white")
@@ -675,17 +685,10 @@
                 .attr("y", 2);
             let txt2 = tooltip.append("text")
                 .attr("fill", "white")
-                .attr("text-anchor", "middle")
-                .attr("alignment-baseline", "hanging")
-                .attr("x", 0)
                 .attr("y", 22);
             let gen_txt2 = gen_tooltip.append("text")
                 .attr("fill", "white")
-                .attr("text-anchor", "middle")
-                .attr("alignment-baseline", "hanging")
-                .attr("x", 0)
                 .attr("y", 22);
-
 
             let momesh = pri_map.append("path")
                 .attr("class", "mouseover outline")
@@ -704,13 +707,12 @@
 
 
             function mouseEntersPlot() {
-                // Make tooltip visible
+
                 tooltip.style("visibility", "visible")
 
-                // Find the state SVG element and add stroke
                 let state = d3.select(this);
                 let stateID = state.datum().id;
-                // console.log(state.datum())
+
 
                 var mo = topojson.mesh(us, us.objects.states, function (a, b) { return a.id === stateID || b.id === stateID; });
                 momesh.datum(mo).attr("d", pri_path)
@@ -762,13 +764,11 @@
 
 
             function mouseEntersgenPlot() {
-                // Make tooltip visible
+
                 gen_tooltip.style("visibility", "visible")
 
-                // Find the state SVG element and add stroke
                 let state = d3.select(this);
                 let stateID = state.datum().id;
-                // console.log(state.datum())
 
                 var mo = topojson.mesh(us, us.objects.states, function (a, b) { return a.id === stateID || b.id === stateID; });
                 momesh.datum(mo).attr("d", gen_path)
@@ -817,11 +817,6 @@
 
             }
 
-            console.log(pri_rates)
-
-            console.log(gen_data)
-            console.log(gen_grouped)
-            console.log(gen_rates)
 
 
             //HERE IS WHERE MY CODE STARTS!!!
