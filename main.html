@@ -10,9 +10,10 @@
         fill: none;
     }
 
-    #title {
-        margin-left: 40%;
+    body {
+        text-align: center;
     }
+
 
     #all_maps {
         width: 100%;
@@ -79,6 +80,8 @@
         width: 100px;
     }
 
+
+
     .ind_button {
         width: 100%;
     }
@@ -89,23 +92,31 @@
             2020
             - December 2020</span></h1>
 
-
     <h3 id="title">March 2020</h3>
-    <input type="range" id="slider" value="0" name="slider" min=0 max=9 step="1" />
+
     <span id="range"></span>
 
 
     <div id="all_maps">
-        <svg id="prisonmap" height="400" width="600"></svg>
-        <svg id="genmap" height="400" width="600"></svg>
+        <svg id="prisonmap" height="400" width="500"></svg>
+        <svg id="genmap" height="400" width="500"></svg>
         <svg id="legend" height="400" width="110"></svg>
     </div>
+    <input type="range" id="slider" value="0" name="slider" min=0 max=9 step="1" />
     <h4 id="note">* General population map colors don't show visible change because all covid rates are under 1%. To see
         how rates
         change, hover over states.</h4>
-    <svg id="lineplot" height="600" width="900"></svg>
+
+    <h3> State specific visualization: Covid Rates over time in Prison v General Populations </h3>
+    <div id="state"></div>
+    <svg id="lineplot" height="400" width="500"></svg>
+
 
     <div id="button-bar"></div>
+    <div id="legend2">
+        Legend:
+        prison = orange general = blue
+    </div>
 
 
     <script>
@@ -150,7 +161,7 @@
         const svg = d3.select("svg#lineplot");
         const width = svg.attr("width");
         const height = svg.attr("height");
-        const margin = { top: 10, right: 10, bottom: 50, left: 50 };
+        const margin = { top: 10, right: 10, bottom: 50, left: 100 };
         const chartWidth = width - margin.left - margin.right;
         const chartHeight = height - margin.top - margin.bottom;
 
@@ -427,9 +438,9 @@
                 });
 
             pri_map.append("text")
-                   .text("US Prison Covid Rates")
-                   .attr("x", (400 / 2))
-                   .attr("y", (30 / 2));
+                .text("US Prison Covid Rates")
+                .attr("x", (400 / 2))
+                .attr("y", (30 / 2));
 
 
             pri_map.append("path").datum(statesMesh)
@@ -454,9 +465,9 @@
                 .attr("d", gen_path);
 
             gen_map.append("text")
-                    .text("General US Covid Rates")
-                    .attr("x", (400 / 2))
-                    .attr("y", (30 / 2));
+                .text("General US Covid Rates")
+                .attr("x", (400 / 2))
+                .attr("y", (30 / 2));
 
             //fill in colors and change title
 
@@ -837,6 +848,27 @@
                 .on("click", function () {
                     graph("New Jersey")
                 })
+            d3.select("div#button-bar")
+                .append("button")
+                .attr("class", "ind_button")
+                .text("Arkansas")
+                .on("click", function () {
+                    graph("Arkansas")
+                })
+            d3.select("div#button-bar")
+                .append("button")
+                .attr("class", "ind_button")
+                .text("Alaska")
+                .on("click", function () {
+                    graph("Alaska")
+                })
+            d3.select("div#button-bar")
+                .append("button")
+                .attr("class", "ind_button")
+                .text("New York")
+                .on("click", function () {
+                    graph("New York")
+                })
 
 
             d3.select("div#button-bar")
@@ -847,6 +879,7 @@
                     graph("Texas")
                 })
 
+            graph("Texas")
             function graph(state) {
                 //HERE IS WHERE MY CODE STARTS!!!
                 chartArea.remove()
@@ -1001,7 +1034,7 @@
 
                 console.log(wisconsin_prison_data)
                 // // Y axis
-                let leftAxis = d3.axisLeft(yScale)
+                let leftAxis = d3.axisLeft(yScale).tickFormat(function (d) { return d + "%"; });
                 let leftGridlines = d3.axisLeft(yScale)
                     .tickSize(-chartWidth - 10)
                     .tickFormat("")
@@ -1028,6 +1061,22 @@
                     .attr("class", "x gridlines")
                     .attr("transform", `translate(${margin.left},${chartHeight + margin.top + 10})`)
                     .call(bottomGridlines)
+
+                svg.append('text')
+                    .attr('class', 'axis-label')
+                    .text("Percentage of Population With Covid")
+                    .attr('transform', 'rotate(-90)')
+                    .attr('x', -120)
+                    .attr('y', 30)
+                    .style("text-anchor", "middle");
+
+                svg.append('text')
+                    .attr('class', 'axis-label')
+                    .text("Number of Month in 2020 (12 = December for example)")
+                    .attr('x', 290)
+                    .attr('y', 390)
+                    .style("text-anchor", "middle");
+
 
                 // // line gen
 
@@ -1073,6 +1122,8 @@
                     .attr("stroke", "orange")
                     .attr("stroke-width", 3)
                     .attr("d", lineGen2)
+
+                d3.select("#state").text(state)
 
 
 
