@@ -73,6 +73,15 @@
         color: white;
         font-size: 30px;
     }
+
+    #button-bar {
+        display: inline-block;
+        width: 100px;
+    }
+
+    .ind_button {
+        width: 100%;
+    }
 </style>
 
 <body>
@@ -80,20 +89,23 @@
             2020
             - December 2020</span></h1>
 
+
     <h3 id="title">March 2020</h3>
     <input type="range" id="slider" value="0" name="slider" min=0 max=9 step="1" />
     <span id="range"></span>
 
 
     <div id="all_maps">
-        <svg id="prisonmap" height="400" width="600"></svg>
-        <svg id="genmap" height="400" width="600"></svg>
+        <svg id="prisonmap" height="400" width="500"></svg>
+        <svg id="genmap" height="400" width="500"></svg>
         <svg id="legend" height="400" width="110"></svg>
     </div>
     <h4 id="note">* General population map colors don't show visible change because all covid rates are under 1%. To see
         how rates
         change, hover over states.</h4>
     <svg id="lineplot" height="600" width="900"></svg>
+
+    <div id="button-bar"></div>
 
 
     <script>
@@ -818,117 +830,253 @@
             }
 
 
-
-            //HERE IS WHERE MY CODE STARTS!!!
-            gen_wisconsin = gen_rates["Wisconsin"]
-            //console.log(gen_wisconsin)
-
-            wisconsin_data = []
-            Object.entries(gen_wisconsin["properties"]).forEach(([key, value]) => {
-                if (key != "state" && key != "id") {
-                    wisconsin_data.push({
-                        "Month": parseInt(key),
-                        "Value": value
-                    })
-                }
-            })
-            console.log(wisconsin_data)
-
-            wisconsin_prison_data = []
-
-            Object.entries(pri_rates["Wisconsin"]["properties"]).forEach(([key, value]) => {
-                if (key != "state" && key != "id") {
-                    wisconsin_prison_data.push({
-                        "Month": parseInt(key),
-                        "Value": value
-                    })
-                }
-            })
-
-            const xExtent = d3.extent(wisconsin_prison_data, d => d["Month"], wisconsin_data, d => d["Month"])
-            const xScale = d3.scaleLinear().domain(xExtent).range([0, chartWidth]);
-
-            const yExtent = d3.extent(wisconsin_prison_data, d => d["Value"])
-            const yScale = d3.scaleLinear().domain(yExtent).range([chartHeight, 0])
+            d3.select("div#button-bar")
+                .append("button")
+                .attr("class", "ind_button")
+                .text("New Jersey")
+                .on("click", function () {
+                    graph("New Jersey")
+                })
 
 
-            console.log(wisconsin_prison_data)
-            // // Y axis
-            let leftAxis = d3.axisLeft(yScale)
-            let leftGridlines = d3.axisLeft(yScale)
-                .tickSize(-chartWidth - 10)
-                .tickFormat("")
-            annotations.append("g")
-                .attr("class", "y axis")
-                .attr("transform", `translate(${margin.left - 10},${margin.top})`)
-                .call(leftAxis)
-            annotations.append("g")
-                .attr("class", "y gridlines")
-                .attr("transform", `translate(${margin.left - 10},${margin.top})`)
-                .call(leftGridlines)
+            d3.select("div#button-bar")
+                .append("button")
+                .attr("class", "ind_button")
+                .text("Texas")
+                .on("click", function () {
+                    graph("Texas")
+                })
 
-            // X axis
+            function graph(state) {
+                //HERE IS WHERE MY CODE STARTS!!!
+                chartArea.remove()
+                annotations.remove()
 
-            let bottomAxis = d3.axisBottom(xScale)
-            let bottomGridlines = d3.axisBottom(xScale)
-                .tickSize(-chartHeight - 10)
-                .tickFormat("")
-            annotations.append("g")
-                .attr("class", "x axis")
-                .attr("transform", `translate(${margin.left},${chartHeight + margin.top + 10})`)
-                .call(bottomAxis)
-            annotations.append("g")
-                .attr("class", "x gridlines")
-                .attr("transform", `translate(${margin.left},${chartHeight + margin.top + 10})`)
-                .call(bottomGridlines)
+                annotations = svg.append("g").attr("id", "annotations");
+                chartArea = svg.append("g").attr("id", "points")
+                    .attr("transform", `translate(${margin.left},${margin.top})`);
 
-            // // line gen
+                gen_wisconsin = gen_rates[state]
+                wisconsin_data = []
 
-            // chartArea.selectAll("circle").data(wisconsin_data)
-            //   .join("circle")
-            //   .attr("r", 3)
-            //   .attr("fill", "navy")
-            //   .attr("cx", d => xScale(d["Month"]))
-            //   .attr("cy", d => yScale(d["Value"]))
-            //   .raise()
-            var lineGen = d3.line()
-                .x(d => xScale(d["Month"]))
-                .y(d => yScale(d["Value"]))
-                .curve(d3.curveMonotoneX)
+                Object.entries(gen_wisconsin["properties"]).forEach(([key, value]) => {
+                    if (key != "state" && key != "id" && key == "mar") {
+                        wisconsin_data.push({
+                            "Month": 3,
+                            "Value": value
+                        })
+                    }
+                    if (key != "state" && key != "id" && key == "apr") {
+                        wisconsin_data.push({
+                            "Month": 4,
+                            "Value": value
+                        })
+                    }
+                    if (key != "state" && key != "id" && key == "may") {
+                        wisconsin_data.push({
+                            "Month": 5,
+                            "Value": value
+                        })
+                    }
+                    if (key != "state" && key != "id" && key == "jun") {
+                        wisconsin_data.push({
+                            "Month": 6,
+                            "Value": value
+                        })
+                    }
+                    if (key != "state" && key != "id" && key == "jul") {
+                        wisconsin_data.push({
+                            "Month": 7,
+                            "Value": value
+                        })
+                    }
+                    if (key != "state" && key != "id" && key == "aug") {
+                        wisconsin_data.push({
+                            "Month": 8,
+                            "Value": value
+                        })
+                    }
+                    if (key != "state" && key != "id" && key == "sep") {
+                        wisconsin_data.push({
+                            "Month": 9,
+                            "Value": value
+                        })
+                    }
+                    if (key != "state" && key != "id" && key == "oct") {
+                        wisconsin_data.push({
+                            "Month": 10,
+                            "Value": value
+                        })
+                    }
+                    if (key != "state" && key != "id" && key == "nov") {
+                        wisconsin_data.push({
+                            "Month": 11,
+                            "Value": value
+                        })
+                    }
 
-            chartArea.append("path")
-                .datum(wisconsin_data)
-                .attr("class", "line")
-                .attr("fill", "none")
-                .attr("stroke", "steelblue")
-                .attr("stroke-width", 3)
-                .attr("d", lineGen)
+                    if (key != "state" && key != "id" && key == "dec") {
+                        wisconsin_data.push({
+                            "Month": 12,
+                            "Value": value
+                        })
+                    }
+                })
+                console.log(wisconsin_data)
+
+                wisconsin_prison_data = []
+
+
+                Object.entries(pri_rates[state]["properties"]).forEach(([key, value]) => {
+                    if (key != "state" && key != "id" && key == "mar") {
+                        wisconsin_prison_data.push({
+                            "Month": 3,
+                            "Value": value
+                        })
+                    }
+                    if (key != "state" && key != "id" && key == "apr") {
+                        wisconsin_prison_data.push({
+                            "Month": 4,
+                            "Value": value
+                        })
+                    }
+                    if (key != "state" && key != "id" && key == "may") {
+                        wisconsin_prison_data.push({
+                            "Month": 5,
+                            "Value": value
+                        })
+                    }
+                    if (key != "state" && key != "id" && key == "jun") {
+                        wisconsin_prison_data.push({
+                            "Month": 6,
+                            "Value": value
+                        })
+                    }
+                    if (key != "state" && key != "id" && key == "jul") {
+                        wisconsin_prison_data.push({
+                            "Month": 7,
+                            "Value": value
+                        })
+                    }
+                    if (key != "state" && key != "id" && key == "aug") {
+                        wisconsin_prison_data.push({
+                            "Month": 8,
+                            "Value": value
+                        })
+                    }
+                    if (key != "state" && key != "id" && key == "sep") {
+                        wisconsin_prison_data.push({
+                            "Month": 9,
+                            "Value": value
+                        })
+                    }
+                    if (key != "state" && key != "id" && key == "oct") {
+                        wisconsin_prison_data.push({
+                            "Month": 10,
+                            "Value": value
+                        })
+                    }
+                    if (key != "state" && key != "id" && key == "nov") {
+                        wisconsin_prison_data.push({
+                            "Month": 11,
+                            "Value": value
+                        })
+                    }
+
+                    if (key != "state" && key != "id" && key == "dec") {
+                        wisconsin_prison_data.push({
+                            "Month": 12,
+                            "Value": value
+                        })
+                    }
+                })
+
+
+                const xExtent = d3.extent(wisconsin_prison_data, d => d["Month"], wisconsin_data, d => d["Month"])
+                const xScale = d3.scaleLinear().domain(xExtent).range([0, chartWidth]);
+
+                const yExtent = d3.extent(wisconsin_prison_data, d => d["Value"])
+                const yScale = d3.scaleLinear().domain(yExtent).range([chartHeight, 0])
+
+
+                console.log(wisconsin_prison_data)
+                // // Y axis
+                let leftAxis = d3.axisLeft(yScale)
+                let leftGridlines = d3.axisLeft(yScale)
+                    .tickSize(-chartWidth - 10)
+                    .tickFormat("")
+                annotations.append("g")
+                    .attr("class", "y axis")
+                    .attr("transform", `translate(${margin.left - 10},${margin.top})`)
+                    .call(leftAxis)
+                annotations.append("g")
+                    .attr("class", "y gridlines")
+                    .attr("transform", `translate(${margin.left - 10},${margin.top})`)
+                    .call(leftGridlines)
+
+                // X axis
+
+                let bottomAxis = d3.axisBottom(xScale)
+                let bottomGridlines = d3.axisBottom(xScale)
+                    .tickSize(-chartHeight - 10)
+                    .tickFormat("")
+                annotations.append("g")
+                    .attr("class", "x axis")
+                    .attr("transform", `translate(${margin.left},${chartHeight + margin.top + 10})`)
+                    .call(bottomAxis)
+                annotations.append("g")
+                    .attr("class", "x gridlines")
+                    .attr("transform", `translate(${margin.left},${chartHeight + margin.top + 10})`)
+                    .call(bottomGridlines)
+
+                // // line gen
+
+                // chartArea.selectAll("circle").data(wisconsin_data)
+                //   .join("circle")
+                //   .attr("r", 3)
+                //   .attr("fill", "navy")
+                //   .attr("cx", d => xScale(d["Month"]))
+                //   .attr("cy", d => yScale(d["Value"]))
+                //   .raise()
+                var lineGen = d3.line()
+                    .x(d => xScale(d["Month"]))
+                    .y(d => yScale(d["Value"]))
+                    .curve(d3.curveMonotoneX)
+
+                chartArea.append("path")
+                    .datum(wisconsin_data)
+                    .attr("class", "line")
+                    .attr("fill", "none")
+                    .attr("stroke", "steelblue")
+                    .attr("stroke-width", 3)
+                    .attr("d", lineGen)
 
 
 
-            // chartArea.selectAll("circle").data(wisconsin_prison_data)
-            //   .join("circle")
-            //   .attr("r", 3)
-            //   .attr("fill", "red")
-            //   .attr("cx", d => xScale(d["Month"]))
-            //   .attr("cy", d => yScale(d["Value"]))
-            //   .raise()
+                // chartArea.selectAll("circle").data(wisconsin_prison_data)
+                //   .join("circle")
+                //   .attr("r", 3)
+                //   .attr("fill", "red")
+                //   .attr("cx", d => xScale(d["Month"]))
+                //   .attr("cy", d => yScale(d["Value"]))
+                //   .raise()
 
-            lineGen2 = d3.line()
-                .x(d => xScale(d["Month"]))
-                .y(d => yScale(d["Value"]))
-                .curve(d3.curveMonotoneX)
+                lineGen2 = d3.line()
+                    .x(d => xScale(d["Month"]))
+                    .y(d => yScale(d["Value"]))
+                    .curve(d3.curveMonotoneX)
 
-            chartArea.append("path")
-                .datum(wisconsin_prison_data)
-                .attr("class", "line")
-                .attr("fill", "none")
-                .attr("stroke", "orange")
-                .attr("stroke-width", 3)
-                .attr("d", lineGen2)
+                chartArea.append("path")
+                    .datum(wisconsin_prison_data)
+                    .attr("class", "line")
+                    .attr("fill", "none")
+                    .attr("stroke", "orange")
+                    .attr("stroke-width", 3)
+                    .attr("d", lineGen2)
 
 
 
+            }
         }
         requestData();
 
