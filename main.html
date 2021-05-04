@@ -316,6 +316,7 @@
                 pop.push(outer_dic);
                 pri_rates[state] = outer_dic;
             });
+            console.log(pri_rates);
 
 
             //general data
@@ -712,7 +713,6 @@
 
                 let state = d3.select(this);
                 let stateID = state.datum().id;
-
 
                 var mo = topojson.mesh(us, us.objects.states, function (a, b) { return a.id === stateID || b.id === stateID; });
                 momesh.datum(mo).attr("d", pri_path)
