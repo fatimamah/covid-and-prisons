@@ -95,14 +95,14 @@
     <h3 id="title">March 2020</h3>
 
     <span id="range"></span>
-
+    <input type="range" id="slider" value="0" name="slider" min=0 max=9 step="1" />
 
     <div id="all_maps">
         <svg id="prisonmap" height="400" width="500"></svg>
         <svg id="genmap" height="400" width="500"></svg>
         <svg id="legend" height="400" width="110"></svg>
     </div>
-    <input type="range" id="slider" value="0" name="slider" min=0 max=9 step="1" />
+
     <h4 id="note">* General population map colors don't show visible change because all covid rates are under 1%. To see
         how rates
         change, hover over states.</h4>
@@ -113,9 +113,10 @@
 
 
     <div id="button-bar"></div>
-    <div id="legend2">
-        Legend:
-        prison = orange general = blue
+    <div style="border: 3px" id="legend2">
+        <span style="font-weight: bold">
+            Legend: </span>
+        <span style="color: orange">prison </span> <span style="color: steelblue"> general </span>
     </div>
 
 
